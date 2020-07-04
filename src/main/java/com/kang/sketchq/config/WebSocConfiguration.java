@@ -21,7 +21,7 @@ public class WebSocConfiguration {
     @Bean
     public HandlerMapping webSocketHandlerMapping() {
         Map<String, WebSocketHandler> map = new HashMap<>();
-        map.put("/greetings", webSocketHandler);
+        map.put("/drawing", webSocketHandler);
         SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
         handlerMapping.setOrder(1);
         handlerMapping.setUrlMap(map);

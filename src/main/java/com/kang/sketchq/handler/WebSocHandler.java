@@ -1,8 +1,7 @@
 package com.kang.sketchq.handler;
 
-import com.kang.sketchq.publisher.GreetingPublisher;
-import com.kang.sketchq.service.GreetingService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.kang.sketchq.publisher.DrawingPublisher;
+import com.kang.sketchq.service.DrawingService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
@@ -13,13 +12,13 @@ import reactor.core.publisher.Mono;
 @Component
 public class WebSocHandler implements WebSocketHandler {
 
-    private final GreetingService greetingService = new GreetingService();
-    private final GreetingPublisher greetingPublisher;
+    private final DrawingService drawingService = new DrawingService();
+    private final DrawingPublisher drawingPublisher;
     private final Flux<String> publisher;
 
-    public WebSocHandler(GreetingPublisher greetingPublisher) {
-        this.greetingPublisher = greetingPublisher;
-        this.publisher = Flux.create(greetingPublisher).share();
+    public WebSocHandler(DrawingPublisher drawingPublisher) {
+        this.drawingPublisher = drawingPublisher;
+        this.publisher = Flux.create(drawingPublisher).share();
     }
 
     @Override
@@ -27,11 +26,11 @@ public class WebSocHandler implements WebSocketHandler {
         webSocketSession
                 .receive()
                 .map(webSocketMessage -> webSocketMessage.getPayloadAsText())
-                .map(helloMessage -> greetingService.greeting(helloMessage))
-                .doOnNext(greeting -> greetingPublisher.push(greeting))
+                .map(helloMessage -> drawingService.drawing(helloMessage))
+                .doOnNext(drawing -> drawingPublisher.push(drawing))
                 .subscribe();
         final Flux<WebSocketMessage> message = publisher
-                .map(greetings -> webSocketSession.textMessage(greetings));
+                .map(drawings -> webSocketSession.textMessage(drawings));
         return webSocketSession.send(message);
 
     }
