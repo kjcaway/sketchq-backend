@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class GreetingService {
-    private static final Logger log = (Logger) LoggerFactory.getLogger(GreetingService.class);
-    private ObjectMapper jsonMapper = new ObjectMapper();
+    private static final Logger log = LoggerFactory.getLogger(GreetingService.class);
+    private final ObjectMapper jsonMapper = new ObjectMapper();
 
     public String greeting(String message){
         String res = null;

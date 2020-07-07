@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Drawing {
-    private String color;
-    private int[] originP;
-    private int[] newP;
+    private final String color;
+    private final int[] originP;
+    private final int[] newP;
 
     @JsonCreator
     public Drawing(

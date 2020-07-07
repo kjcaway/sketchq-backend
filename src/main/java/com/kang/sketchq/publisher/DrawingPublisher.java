@@ -28,11 +28,14 @@ public class DrawingPublisher implements Consumer<FluxSink<String>> {
                 String drawing = null;
                 try {
                     drawing = queue.take();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    log.debug(drawing);
+                    sink.next(drawing);
+                } catch (Exception e) {
+                    log.error(e.getMessage());
                 }
-                sink.next(drawing);
             }
         });
     }
+
+
 }
