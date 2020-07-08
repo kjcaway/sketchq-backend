@@ -2,6 +2,9 @@ package com.kang.sketchq.handler;
 
 import com.kang.sketchq.publisher.DrawingPublisher;
 import com.kang.sketchq.service.DrawingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
@@ -11,14 +14,16 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class WebSocHandler implements WebSocketHandler {
+    private static final Logger log = LoggerFactory.getLogger(WebSocHandler.class);
 
-    private final DrawingService drawingService = new DrawingService();
-    private final DrawingPublisher drawingPublisher;
-    private final Flux<String> publisher;
+    final private Flux<String> publisher;
+    @Autowired
+    public DrawingService drawingService;
+    @Autowired
+    public DrawingPublisher drawingPublisher;
 
     public WebSocHandler(DrawingPublisher drawingPublisher) {
-        this.drawingPublisher = drawingPublisher;
-        this.publisher = Flux.create(drawingPublisher).share();
+        this.publisher = Flux.create(drawingPublisher).log().publish().autoConnect().log();
     }
 
     @Override
@@ -28,10 +33,14 @@ public class WebSocHandler implements WebSocketHandler {
                 .map(webSocketMessage -> webSocketMessage.getPayloadAsText())
                 .map(helloMessage -> drawingService.drawing(helloMessage))
                 .doOnNext(drawing -> drawingPublisher.push(drawing))
+                .doOnError((error) -> log.error(error.getMessage()))
+                .doOnComplete(() -> log.info("Complete event. Session disconnect."))
                 .subscribe();
-        final Flux<WebSocketMessage> message = publisher
+
+        Flux<WebSocketMessage> message = publisher
                 .map(drawings -> webSocketSession.textMessage(drawings));
         return webSocketSession.send(message);
 
     }
+
 }

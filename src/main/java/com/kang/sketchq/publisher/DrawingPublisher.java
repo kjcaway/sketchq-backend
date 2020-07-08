@@ -25,13 +25,11 @@ public class DrawingPublisher implements Consumer<FluxSink<String>> {
     public void accept(FluxSink<String> sink) {
         this.executor.execute(() -> {
             while (true) {
-                String drawing = null;
                 try {
-                    drawing = queue.take();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    sink.next(queue.take());
+                } catch (Exception e) {
+                    log.error(e.getMessage());
                 }
-                sink.next(drawing);
             }
         });
     }
