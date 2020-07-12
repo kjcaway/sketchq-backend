@@ -1,7 +1,6 @@
 package com.kang.sketchq.handler;
 
 import com.kang.sketchq.publisher.DrawingPublisher;
-import com.kang.sketchq.service.DrawingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +17,6 @@ public class WebSocHandler implements WebSocketHandler {
 
     final private Flux<String> publisher;
     @Autowired
-    public DrawingService drawingService;
-    @Autowired
     public DrawingPublisher drawingPublisher;
 
     public WebSocHandler(DrawingPublisher drawingPublisher) {
@@ -31,7 +28,6 @@ public class WebSocHandler implements WebSocketHandler {
         webSocketSession
                 .receive()
                 .map(webSocketMessage -> webSocketMessage.getPayloadAsText())
-                .map(helloMessage -> drawingService.drawing(helloMessage))
                 .doOnNext(drawing -> drawingPublisher.push(drawing))
                 .doOnError((error) -> log.error(error.getMessage()))
                 .doOnComplete(() -> log.info("Complete event. Session disconnect."))
