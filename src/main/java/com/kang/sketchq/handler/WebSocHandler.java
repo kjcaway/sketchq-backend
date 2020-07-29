@@ -1,10 +1,8 @@
 package com.kang.sketchq.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kang.sketchq.publisher.DrawingPublisher;
-import com.kang.sketchq.type.Drawing;
+import com.kang.sketchq.publisher.MessagePublisher;
 import com.kang.sketchq.type.Message;
-import com.kang.sketchq.type.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +13,6 @@ import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.awt.*;
-
 @Component
 public class WebSocHandler implements WebSocketHandler {
     private static final Logger log = LoggerFactory.getLogger(WebSocHandler.class);
@@ -25,10 +21,10 @@ public class WebSocHandler implements WebSocketHandler {
     final private Flux<String> publisher;
 
     @Autowired
-    public DrawingPublisher drawingPublisher;
+    public MessagePublisher messagePublisher;
 
-    public WebSocHandler(DrawingPublisher drawingPublisher) {
-        this.publisher = Flux.create(drawingPublisher).log().publish().autoConnect().log();
+    public WebSocHandler(MessagePublisher messagePublisher) {
+        this.publisher = Flux.create(messagePublisher).log().publish().autoConnect().log();
     }
 
     @Override
@@ -37,7 +33,7 @@ public class WebSocHandler implements WebSocketHandler {
                 .receive()
                 .map(webSocketMessage -> webSocketMessage.getPayloadAsText())
                 .map(message -> this.toEvent(message, webSocketSession))
-                .doOnNext(drawing -> drawingPublisher.push(drawing))
+                .doOnNext(drawing -> messagePublisher.push(drawing))
                 .doOnError((error) -> log.error(error.getMessage()))
                 .doOnComplete(() -> {
                     String username = (String) webSocketSession.getAttributes().get("username");

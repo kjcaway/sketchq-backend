@@ -12,8 +12,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 @Component
-public class DrawingPublisher implements Consumer<FluxSink<String>> {
-    private static final Logger log = LoggerFactory.getLogger(DrawingPublisher.class);
+public class MessagePublisher implements Consumer<FluxSink<String>> {
+    private static final Logger log = LoggerFactory.getLogger(MessagePublisher.class);
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>();
     private final Executor executor = Executors.newSingleThreadExecutor();
 
