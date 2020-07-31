@@ -25,7 +25,7 @@ public class UserService {
     }
 
     public void joinUser(String userName, String roomId){
-        reactiveRedisOperations.opsForValue().set(userName, roomId);
+        stringStringRedisTemplate.opsForValue().set(userName,roomId);
     }
 
     public Flux<String> findUsers(String roomId){

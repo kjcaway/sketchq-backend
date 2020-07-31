@@ -3,4 +3,4 @@ spring:
     active: dev
   redis:
     host: localhost
-    port: 13112
+    port: 6379

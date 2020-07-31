@@ -25,7 +25,7 @@ public class UserRouter {
         return route()
                 .GET("/users",
                         serverRequest -> ServerResponse.ok().contentType(MediaType.TEXT_EVENT_STREAM).body(userService.findUsers("room1"), String.class))
-                .GET("/join/{name}",
+                .GET("/join",
                         serverRequest -> {
                             Optional<String> name = serverRequest.queryParam("name");
                             name.ifPresent(nm -> {
