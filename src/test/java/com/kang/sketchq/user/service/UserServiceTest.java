@@ -1,4 +1,4 @@
-package com.kang.sketchq.user;
+package com.kang.sketchq.user.service;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,13 +15,14 @@ public class UserServiceTest {
     @Autowired
     private ReactiveRedisTemplate<String, String> redisTemplate;
     private ReactiveValueOperations<String, String> reactiveValueOps;
+
     @Before
     public void setup() {
         reactiveValueOps = redisTemplate.opsForValue();
     }
 
     @Test
-    public void givenEmployee_whenSet_thenSet() {
+    public void joinUserTest() {
         Mono<Boolean> result = reactiveValueOps.set("tester", "10101");
         StepVerifier.create(result)
                 .expectNext(true)
@@ -29,7 +30,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void givenEmployeeId_whenGet_thenReturnsEmployee() {
+    public void findUserTest() {
         Mono<String> fetchedEmployee = reactiveValueOps.get("tester");
         StepVerifier.create(fetchedEmployee)
                 .expectNext("10101")

@@ -19,6 +19,9 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
 
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
 	compile group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
 }
 

@@ -1,36 +1,38 @@
 package com.kang.sketchq.user.service;
 
+import com.kang.sketchq.type.User;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 
 @Service
 public class UserService {
     private final ReactiveRedisConnectionFactory factory;
-    private final ReactiveRedisOperations<String, String> reactiveRedisOperations;
-    private final RedisTemplate<String, String> stringStringRedisTemplate;
-    private static final AtomicInteger count = new AtomicInteger(0);
-
+    private final ReactiveRedisOperations<String, Object> reactiveRedisOperations;
+    private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
 
     public UserService(ReactiveRedisConnectionFactory factory,
-                       ReactiveRedisOperations<String, String> reactiveRedisOperations,
-                       RedisTemplate<String, String> stringStringRedisTemplate) {
+                       ReactiveRedisOperations<String, Object> reactiveRedisOperations,
+                       ReactiveRedisTemplate<String, Object> reactiveRedisTemplate) {
         this.factory = factory;
         this.reactiveRedisOperations = reactiveRedisOperations;
-        this.stringStringRedisTemplate = stringStringRedisTemplate;
+        this.reactiveRedisTemplate = reactiveRedisTemplate;
     }
 
-    public void joinUser(String userName, String roomId){
-        stringStringRedisTemplate.opsForValue().set(userName,roomId);
+    public Mono<Boolean> joinUser(User user){
+        return reactiveRedisTemplate.opsForValue().set(user.getRoomNum() + ":" + user.getId(), user);
     }
 
-    public Flux<String> findUsers(String roomId){
+    public Mono<List<Object>> findUsers(int roomId){
         return reactiveRedisOperations
-                .keys("*")
-                .flatMap(key -> reactiveRedisOperations.opsForValue().get(key));
+                .keys(roomId + ":*")
+                .flatMap(key -> reactiveRedisOperations.opsForValue().get(key))
+                .collectList()
+                .log();
     }
 }
