@@ -33,38 +33,41 @@ public class WebSocHandler implements WebSocketHandler {
                 .receive()
                 .map(webSocketMessage -> webSocketMessage.getPayloadAsText())
                 .map(message -> this.toEvent(message, webSocketSession))
-                .doOnNext(drawing -> messagePublisher.push(drawing))
+                .doOnNext(message -> messagePublisher.push(message))
                 .doOnError((error) -> log.error(error.getMessage()))
                 .doOnComplete(() -> {
                     String username = (String) webSocketSession.getAttributes().get("username");
                     log.info("Complete event. Session disconnect. User: " + username);
-
                 })
                 .subscribe();
 
-        Flux<WebSocketMessage> message = publisher
-                .map(drawings -> webSocketSession.textMessage(drawings));
-        return webSocketSession.send(message);
-
+        Flux<WebSocketMessage> messageFlux = publisher
+                .map(message -> webSocketSession.textMessage(message));
+        return webSocketSession.send(messageFlux);
     }
 
-    private String toEvent(String message, WebSocketSession webSocketSession){
+    private String toEvent(String message, WebSocketSession webSocketSession) {
         String res = "";
-        try{
-            final Message jsonMes = jsonMapper.readValue(message, Message.class);
-            switch (jsonMes.getMessageType()){
+        try {
+            final Message messageObj = jsonMapper.readValue(message, Message.class);
+            switch (messageObj.getMessageType()) {
                 case JOIN:
-                    log.info("Session connect. User: " + jsonMes.getSender());
-                    webSocketSession.getAttributes().putIfAbsent("username", jsonMes.getSender());
+                    log.info("Session connect: " + messageObj.getSender());
                     break;
+                case LEAVE:
+                    log.info("Disconnect: " + messageObj.getSender());
+                    break;
+                case CHAT:
+                    log.info("User(" + messageObj.getSender() + ") chat: " + messageObj.getChat());
+                    break;
+                case DRAW:
                 default:
                     break;
             }
 
-            res = jsonMapper.writeValueAsString(jsonMes);
-        }catch(Exception e){
+            res = jsonMapper.writeValueAsString(messageObj);
+        } catch (Exception e) {
             log.error(e.getMessage());
-
         } finally {
             return res;
         }

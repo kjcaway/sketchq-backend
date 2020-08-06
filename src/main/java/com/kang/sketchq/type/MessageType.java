@@ -1,7 +1,7 @@
 package com.kang.sketchq.type;
 
 public enum MessageType {
-    DRAWING,
+    DRAW,
     CHAT,
     JOIN,
     LEAVE

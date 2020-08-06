@@ -1,7 +1,6 @@
 package com.kang.sketchq.type;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -10,6 +9,10 @@ public class User implements Serializable {
     private String id;
     private String name;
     private int roomNum;
+
+    public User() {
+        super();
+    }
 
     public User(String id, String name, int roomNum) {
         this.id = id;

@@ -5,7 +5,6 @@ import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -24,15 +23,19 @@ public class UserService {
         this.reactiveRedisTemplate = reactiveRedisTemplate;
     }
 
-    public Mono<Boolean> joinUser(User user){
+    public Mono<Boolean> joinUser(User user) {
         return reactiveRedisTemplate.opsForValue().set(user.getRoomNum() + ":" + user.getId(), user);
     }
 
-    public Mono<List<Object>> findUsers(int roomId){
+    public Mono<List<Object>> findUsers(int roomId) {
         return reactiveRedisOperations
                 .keys(roomId + ":*")
                 .flatMap(key -> reactiveRedisOperations.opsForValue().get(key))
                 .collectList()
                 .log();
+    }
+
+    public Mono<Boolean> deleteUser(String key) {
+        return reactiveRedisTemplate.opsForValue().delete(key);
     }
 }

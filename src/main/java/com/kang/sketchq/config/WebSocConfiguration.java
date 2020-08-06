@@ -22,7 +22,7 @@ public class WebSocConfiguration {
     @Bean
     public HandlerMapping webSocketHandlerMapping() {
         Map<String, WebSocketHandler> map = new HashMap<>();
-        map.put("/drawing", webSocHandler);
+        map.put("/ws", webSocHandler);
 
         SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
         handlerMapping.setOrder(1);
@@ -31,7 +31,7 @@ public class WebSocConfiguration {
     }
 
     @Bean
-    public WebSocketHandlerAdapter handlerAdapter(){
+    public WebSocketHandlerAdapter handlerAdapter() {
         return new WebSocketHandlerAdapter();
     }
 }
