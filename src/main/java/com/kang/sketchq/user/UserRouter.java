@@ -45,7 +45,7 @@ public class UserRouter {
                                 return userService.joinUser(user)
                                         .flatMap(b -> {
                                             if (b) {
-                                                return ServerResponse.ok().body(BodyInserters.fromObject("SUCCESS"));
+                                                return ServerResponse.ok().body(BodyInserters.fromObject(id));
                                             } else {
                                                 return ServerResponse.badRequest().body(BodyInserters.empty());
                                             }
