@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class Message {
     private MessageType messageType;
-    private String sender;
+    private User sender;
     private String chat;
     private Drawing drawing = null;
 
@@ -13,7 +13,7 @@ public class Message {
         super();
     }
 
-    public Message(MessageType messageType, String sender, String chat, Drawing drawing) {
+    public Message(MessageType messageType, User sender, String chat, Drawing drawing) {
         this.messageType = messageType;
         this.sender = sender;
         this.chat = chat;
