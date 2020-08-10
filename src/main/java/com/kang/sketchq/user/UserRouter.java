@@ -1,5 +1,10 @@
 package com.kang.sketchq.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kang.sketchq.handler.WebSocHandler;
+import com.kang.sketchq.type.Message;
+import com.kang.sketchq.type.MessageType;
 import com.kang.sketchq.type.User;
 import com.kang.sketchq.user.service.UserService;
 import org.springframework.context.annotation.Bean;
@@ -17,9 +22,11 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 @Configuration
 public class UserRouter {
     private final UserService userService;
+    private final WebSocHandler webSocHandler;
 
-    public UserRouter(UserService userService) {
+    public UserRouter(UserService userService, WebSocHandler webSocHandler) {
         this.userService = userService;
+        this.webSocHandler = webSocHandler;
     }
 
     @Bean
@@ -46,6 +53,20 @@ public class UserRouter {
                                         .flatMap(b -> {
                                             if (b) {
                                                 return ServerResponse.ok().body(BodyInserters.fromObject(id));
+                                            } else {
+                                                return ServerResponse.badRequest().body(BodyInserters.empty());
+                                            }
+                                        });
+                            });
+                        })
+                .POST("/leave",
+                        serverRequest -> {
+                            Mono<User> userMono = serverRequest.bodyToMono(User.class);
+                            return userMono.flatMap(user -> {
+                                return userService.deleteUser(user.getId())
+                                        .flatMap(b -> {
+                                            if (b) {
+                                                return ServerResponse.ok().body(BodyInserters.fromObject(user.getId()));
                                             } else {
                                                 return ServerResponse.badRequest().body(BodyInserters.empty());
                                             }

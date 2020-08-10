@@ -24,7 +24,7 @@ public class WebSocHandler implements WebSocketHandler {
     public MessagePublisher messagePublisher;
 
     public WebSocHandler(MessagePublisher messagePublisher) {
-        this.publisher = Flux.create(messagePublisher).log().publish().autoConnect().log();
+        this.publisher = Flux.create(messagePublisher).share();
     }
 
     @Override
@@ -36,8 +36,7 @@ public class WebSocHandler implements WebSocketHandler {
                 .doOnNext(message -> messagePublisher.push(message))
                 .doOnError((error) -> log.error(error.getMessage()))
                 .doOnComplete(() -> {
-                    String username = (String) webSocketSession.getAttributes().get("username");
-                    log.info("Complete event. Session disconnect. User: " + username);
+                    log.info("Complete event. Session disconnect. User: " + webSocketSession.getId());
                 })
                 .subscribe();
 
@@ -48,19 +47,21 @@ public class WebSocHandler implements WebSocketHandler {
 
     private String toEvent(String message, WebSocketSession webSocketSession) {
         String res = "";
+        String id = webSocketSession.getId();
         try {
             final Message messageObj = jsonMapper.readValue(message, Message.class);
             switch (messageObj.getMessageType()) {
                 case JOIN:
-                    log.info("Session connect: " + messageObj.getSender());
+                    log.info("Session connect: " + id);
                     break;
                 case LEAVE:
-                    log.info("Disconnect: " + messageObj.getSender());
+                    log.info("Disconnect: " + id);
                     break;
                 case CHAT:
-                    log.info("User(" + messageObj.getSender() + ") chat: " + messageObj.getChat());
+                    log.info("User(" + id + ") chat: " + messageObj.getChat());
                     break;
                 case DRAW:
+                    break;
                 default:
                     break;
             }
