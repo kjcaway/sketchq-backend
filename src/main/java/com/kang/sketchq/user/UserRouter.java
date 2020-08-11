@@ -66,6 +66,7 @@ public class UserRouter {
                                 return userService.deleteUser(user.getId())
                                         .flatMap(b -> {
                                             if (b) {
+
                                                 return ServerResponse.ok().body(BodyInserters.fromObject(user.getId()));
                                             } else {
                                                 return ServerResponse.badRequest().body(BodyInserters.empty());

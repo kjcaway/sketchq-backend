@@ -35,6 +35,7 @@ public class WebSocHandler implements WebSocketHandler {
                 .map(message -> this.toEvent(message, webSocketSession))
                 .doOnNext(message -> messagePublisher.push(message))
                 .doOnError((error) -> log.error(error.getMessage()))
+                .log()
                 .doOnComplete(() -> {
                     log.info("Complete event. Session disconnect. User: " + webSocketSession.getId());
                 })
@@ -52,13 +53,13 @@ public class WebSocHandler implements WebSocketHandler {
             final Message messageObj = jsonMapper.readValue(message, Message.class);
             switch (messageObj.getMessageType()) {
                 case JOIN:
-                    log.info("Session connect: " + id);
+                    log.info("Session JOIN: " + id);
                     break;
                 case LEAVE:
-                    log.info("Disconnect: " + id);
+                    log.info("Session LEAVE: " + id);
                     break;
                 case CHAT:
-                    log.info("User(" + id + ") chat: " + messageObj.getChat());
+                    log.info("User(" + id + ") CHAT: " + messageObj.getChat());
                     break;
                 case DRAW:
                     break;
