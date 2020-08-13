@@ -35,7 +35,6 @@ public class WebSocHandler implements WebSocketHandler {
                 .map(message -> this.toEvent(message, webSocketSession))
                 .doOnNext(message -> messagePublisher.push(message))
                 .doOnError((error) -> log.error(error.getMessage()))
-                .log()
                 .doOnComplete(() -> {
                     log.info("Complete event. Session disconnect. User: " + webSocketSession.getId());
                 })
