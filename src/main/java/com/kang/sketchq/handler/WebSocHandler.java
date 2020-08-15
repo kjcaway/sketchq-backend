@@ -1,16 +1,14 @@
 package com.kang.sketchq.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kang.sketchq.publisher.MessagePublisher;
+import com.kang.sketchq.publisher.WebSocChannelPublisher;
 import com.kang.sketchq.type.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -18,47 +16,43 @@ public class WebSocHandler implements WebSocketHandler {
     private static final Logger log = LoggerFactory.getLogger(WebSocHandler.class);
 
     final private ObjectMapper jsonMapper = new ObjectMapper();
-    final private Flux<String> publisher;
 
     @Autowired
-    public MessagePublisher messagePublisher;
-
-    public WebSocHandler(MessagePublisher messagePublisher) {
-        this.publisher = Flux.create(messagePublisher).share();
-    }
+    public WebSocChannelPublisher webSocChannelPublisher;
 
     @Override
     public Mono<Void> handle(WebSocketSession webSocketSession) {
+        String roomId = webSocketSession.getHandshakeInfo().getAttributes().get("roomId").toString();
+        String userId = webSocketSession.getHandshakeInfo().getAttributes().get("userId").toString();
+
         webSocketSession
                 .receive()
                 .map(webSocketMessage -> webSocketMessage.getPayloadAsText())
                 .map(message -> this.toEvent(message, webSocketSession))
-                .doOnNext(message -> messagePublisher.push(message))
+                .doOnNext(message -> webSocChannelPublisher.getMessageQueue(roomId).push(message))
                 .doOnError((error) -> log.error(error.getMessage()))
                 .doOnComplete(() -> {
-                    log.info("Complete event. Session disconnect. User: " + webSocketSession.getId());
+                    log.info("Complete event. Session disconnect. User: " + userId);
                 })
                 .subscribe();
 
-        Flux<WebSocketMessage> messageFlux = publisher
-                .map(message -> webSocketSession.textMessage(message));
-        return webSocketSession.send(messageFlux);
+        return webSocketSession.send(webSocChannelPublisher.getChannel(roomId).map(webSocketSession::textMessage));
     }
 
     private String toEvent(String message, WebSocketSession webSocketSession) {
         String res = "";
-        String id = webSocketSession.getId();
+        String userId = webSocketSession.getHandshakeInfo().getAttributes().get("userId").toString();
         try {
             final Message messageObj = jsonMapper.readValue(message, Message.class);
             switch (messageObj.getMessageType()) {
                 case JOIN:
-                    log.info("Session JOIN: " + id);
+                    log.info("Session JOIN: " + userId);
                     break;
                 case LEAVE:
-                    log.info("Session LEAVE: " + id);
+                    log.info("Session LEAVE: " + userId);
                     break;
                 case CHAT:
-                    log.info("User(" + id + ") CHAT: " + messageObj.getChat());
+                    log.info("User(" + userId + ") CHAT: " + messageObj.getChat());
                     break;
                 case DRAW:
                     break;
