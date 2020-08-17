@@ -2,7 +2,7 @@ package com.kang.sketchq.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kang.sketchq.publisher.WebSocChannelPublisher;
-import com.kang.sketchq.room.Room;
+import com.kang.sketchq.type.Room;
 import com.kang.sketchq.room.service.RoomService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +54,7 @@ public class CustomHandshakeWebsocketService extends HandshakeWebSocketService {
                 // room 생성
                 Room room = new Room(roomId, userId);
                 webSocChannelPublisher.addChannel(roomId);
+
                 return roomService.createRoom(room);
             } else{
                 // room에 user 추가
@@ -66,6 +67,6 @@ public class CustomHandshakeWebsocketService extends HandshakeWebSocketService {
             } else{
                 return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"));
             }
-        }).log();
+        });
     }
 }

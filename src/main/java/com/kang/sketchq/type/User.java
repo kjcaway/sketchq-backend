@@ -8,15 +8,15 @@ import java.io.Serializable;
 public class User implements Serializable {
     private String id;
     private String name;
-    private int roomNum;
+    private String roomId;
 
     public User() {
         super();
     }
 
-    public User(String id, String name, int roomNum) {
+    public User(String id, String name, String roomId) {
         this.id = id;
         this.name = name;
-        this.roomNum = roomNum;
+        this.roomId = roomId;
     }
 }

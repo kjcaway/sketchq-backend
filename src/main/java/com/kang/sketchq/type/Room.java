@@ -1,4 +1,4 @@
-package com.kang.sketchq.room;
+package com.kang.sketchq.type;
 
 import lombok.Data;
 

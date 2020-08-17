@@ -32,17 +32,17 @@ public class UserRouter {
     @Bean
     RouterFunction<ServerResponse> routerList() {
         return route()
-                .GET("/users",
-                        serverRequest -> {
-                            Optional<String> roomNum = serverRequest.queryParam("roomNum");
-
-                            if (!roomNum.isPresent()) {
-                                return ServerResponse.badRequest().body(BodyInserters.empty());
-                            } else {
-                                return userService.findUsers(Integer.parseInt(roomNum.get()))
-                                        .flatMap(s -> ServerResponse.ok().body(BodyInserters.fromObject(s)));
-                            }
-                        })
+//                .GET("/users",
+//                        serverRequest -> {
+//                            Optional<String> roomId = serverRequest.queryParam("roomId");
+//
+//                            if (!roomId.isPresent()) {
+//                                return ServerResponse.badRequest().body(BodyInserters.empty());
+//                            } else {
+//                                return userService.findUsers(Integer.parseInt(roomId.get()))
+//                                        .flatMap(s -> ServerResponse.ok().body(BodyInserters.fromObject(s)));
+//                            }
+//                        })
                 .POST("/join",
                         serverRequest -> {
                             String id = UUID.randomUUID().toString().replace("-", "");
