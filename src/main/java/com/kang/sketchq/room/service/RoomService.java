@@ -1,6 +1,8 @@
 package com.kang.sketchq.room.service;
 
+import com.kang.sketchq.publisher.WebSocChannelPublisher;
 import com.kang.sketchq.type.Room;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -13,6 +15,9 @@ public class RoomService {
     private final ReactiveRedisConnectionFactory factory;
     private final ReactiveRedisOperations<String, Object> reactiveRedisOperations;
     private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
+
+    @Autowired
+    public WebSocChannelPublisher webSocChannelPublisher;
 
     public RoomService(ReactiveRedisConnectionFactory factory,
                        ReactiveRedisOperations<String, Object> reactiveRedisOperations,
@@ -28,34 +33,34 @@ public class RoomService {
      * @return Length of List
      */
     public Mono<Long> createRoom(Room room) {
-        return reactiveRedisTemplate.opsForList().rightPush(room.getId(), room.getCreator());
+        return reactiveRedisTemplate.opsForList().rightPush("room", room.getId());
     }
 
-    /**
-     * Room size
-     * @param key
-     * @return Length of List
-     */
-    public Mono<Long> roomSize(String key) {
-        return reactiveRedisTemplate.opsForList().size(key);
-    }
-
-    /**
-     * add User
-     * @param key, id
-     * @return Length of List
-     */
-    public Mono<Long> addUser(String key, String id) {
-        return reactiveRedisTemplate.opsForList().rightPush(key, id);
-    }
-
-    /**
-     * get Users
-     * @param key, id
-     * @return Flux<UserId>
-     */
-    public Flux<Object> getUserList(String key) {
-        return reactiveRedisTemplate.opsForList().range(key, 0, 100);
-    }
+//    /**
+//     * Room size
+//     * @param key
+//     * @return Length of List
+//     */
+//    public Mono<Long> roomSize(String key) {
+//        return reactiveRedisTemplate.opsForList().size(key);
+//    }
+//
+//    /**
+//     * add User
+//     * @param key, id
+//     * @return Length of List
+//     */
+//    public Mono<Long> addUser(String key, String id) {
+//        return reactiveRedisTemplate.opsForList().rightPush(key, id);
+//    }
+//
+//    /**
+//     * get Users
+//     * @param key, id
+//     * @return Flux<UserId>
+//     */
+//    public Flux<Object> getUserList(String key) {
+//        return reactiveRedisTemplate.opsForList().range(key, 0, 100);
+//    }
 
 }

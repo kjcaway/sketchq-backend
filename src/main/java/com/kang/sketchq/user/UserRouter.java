@@ -1,12 +1,8 @@
 package com.kang.sketchq.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kang.sketchq.handler.WebSocHandler;
-import com.kang.sketchq.type.Message;
-import com.kang.sketchq.type.MessageType;
 import com.kang.sketchq.type.User;
 import com.kang.sketchq.user.service.UserService;
+import com.kang.sketchq.util.CommonUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -22,37 +18,38 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 @Configuration
 public class UserRouter {
     private final UserService userService;
-    private final WebSocHandler webSocHandler;
 
-    public UserRouter(UserService userService, WebSocHandler webSocHandler) {
+    public UserRouter(UserService userService) {
         this.userService = userService;
-        this.webSocHandler = webSocHandler;
     }
 
     @Bean
     RouterFunction<ServerResponse> routerList() {
         return route()
-//                .GET("/users",
-//                        serverRequest -> {
-//                            Optional<String> roomId = serverRequest.queryParam("roomId");
-//
-//                            if (!roomId.isPresent()) {
-//                                return ServerResponse.badRequest().body(BodyInserters.empty());
-//                            } else {
-//                                return userService.findUsers(Integer.parseInt(roomId.get()))
-//                                        .flatMap(s -> ServerResponse.ok().body(BodyInserters.fromObject(s)));
-//                            }
-//                        })
+                .GET("/users",
+                        serverRequest -> {
+                            Optional<String> roomId = serverRequest.queryParam("roomId");
+
+                            if (!roomId.isPresent()) {
+                                return ServerResponse.badRequest().body(BodyInserters.empty());
+                            } else {
+                                return userService.findUsers(roomId.get())
+                                        .flatMap(s -> ServerResponse.ok().body(BodyInserters.fromValue(s)));
+                            }
+                        })
                 .POST("/join",
                         serverRequest -> {
-                            String id = UUID.randomUUID().toString().replace("-", "");
+                            String id = CommonUtil.getRandomString(8);
                             Mono<User> userMono = serverRequest.bodyToMono(User.class);
                             return userMono.flatMap(user -> {
                                 user.setId(id);
+
+                                if(user.getRoomId() == null) return ServerResponse.badRequest().body(BodyInserters.empty());
+
                                 return userService.joinUser(user)
                                         .flatMap(b -> {
                                             if (b) {
-                                                return ServerResponse.ok().body(BodyInserters.fromObject(id));
+                                                return ServerResponse.ok().body(BodyInserters.fromValue(id));
                                             } else {
                                                 return ServerResponse.badRequest().body(BodyInserters.empty());
                                             }
@@ -67,7 +64,7 @@ public class UserRouter {
                                         .flatMap(b -> {
                                             if (b) {
 
-                                                return ServerResponse.ok().body(BodyInserters.fromObject(user.getId()));
+                                                return ServerResponse.ok().body(BodyInserters.fromValue(user.getId()));
                                             } else {
                                                 return ServerResponse.badRequest().body(BodyInserters.empty());
                                             }

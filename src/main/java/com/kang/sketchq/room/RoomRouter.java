@@ -2,42 +2,41 @@ package com.kang.sketchq.room;
 
 import com.kang.sketchq.handler.WebSocHandler;
 import com.kang.sketchq.room.service.RoomService;
+import com.kang.sketchq.type.Room;
+import com.kang.sketchq.util.CommonUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import java.util.Optional;
-
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
 public class RoomRouter {
     private final RoomService roomService;
-    private final WebSocHandler webSocHandler;
 
-    public RoomRouter(RoomService roomService, WebSocHandler webSocHandler) {
+    public RoomRouter(RoomService roomService) {
         this.roomService = roomService;
-        this.webSocHandler = webSocHandler;
     }
 
     @Bean
     RouterFunction<ServerResponse> routerList() {
         return route()
-                .GET("/users",
+                .POST("/room",
                         serverRequest -> {
-                            Optional<String> roomId = serverRequest.queryParam("roomId");
+                            String roomId = CommonUtil.getRandomString(8);
 
-                            if (!roomId.isPresent()) {
+                            if (roomId == null) {
                                 return ServerResponse.badRequest().body(BodyInserters.empty());
                             } else {
-                                return roomService.getUserList(roomId.get())
-                                        .collectList()
-                                        .flatMap(s -> ServerResponse.ok().body(BodyInserters.fromValue(s)));
+                                Room room = new Room();
+                                room.setId(roomId);
+
+                                return roomService.createRoom(room)
+                                        .flatMap(s -> ServerResponse.ok().body(BodyInserters.fromValue(roomId)));
                             }
                         })
                 .build();
     }
-
 }

@@ -13,12 +13,12 @@ public class WebSocChannelPublisher {
     private Map<String, Flux<String>> channelMap;
 
     @PostConstruct
-    private void init(){
+    private void init() {
         messageQueueMap = new LinkedHashMap<>();
         channelMap = new LinkedHashMap<>();
     }
 
-    public void addChannel(String roomId){
+    public void addChannel(String roomId) {
         MessagePublisher messagePublisher = new MessagePublisher();
         Flux<String> channel = Flux.create(messagePublisher).share();
 
@@ -26,11 +26,15 @@ public class WebSocChannelPublisher {
         channelMap.put(roomId, channel);
     }
 
-    public MessagePublisher getMessageQueue(String roomId){
+    public MessagePublisher getMessageQueue(String roomId) {
         return messageQueueMap.get(roomId);
     }
 
-    public Flux<String> getChannel(String roomId){
+    public Flux<String> getChannel(String roomId) {
         return channelMap.get(roomId);
+    }
+
+    public boolean isEmpty(String roomId) {
+        return messageQueueMap.containsKey(roomId);
     }
 }

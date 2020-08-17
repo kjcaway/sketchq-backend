@@ -24,10 +24,10 @@ public class UserService {
     }
 
     public Mono<Boolean> joinUser(User user) {
-        return reactiveRedisTemplate.opsForValue().set(user.getRoomNum() + ":" + user.getId(), user);
+        return reactiveRedisTemplate.opsForValue().set(user.getRoomId() + ":" + user.getId(), user);
     }
 
-    public Mono<List<Object>> findUsers(int roomId) {
+    public Mono<List<Object>> findUsers(String roomId) {
         return reactiveRedisOperations
                 .keys(roomId + ":*")
                 .flatMap(key -> reactiveRedisOperations.opsForValue().get(key))

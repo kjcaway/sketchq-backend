@@ -2,8 +2,8 @@ package com.kang.sketchq.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kang.sketchq.publisher.WebSocChannelPublisher;
-import com.kang.sketchq.type.Room;
-import com.kang.sketchq.room.service.RoomService;
+import com.kang.sketchq.type.User;
+import com.kang.sketchq.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class CustomHandshakeWebsocketService extends HandshakeWebSocketService {
     final private ObjectMapper jsonMapper = new ObjectMapper();
 
     @Autowired
-    public RoomService roomService;
+    public UserService userService;
     @Autowired
     public WebSocChannelPublisher webSocChannelPublisher;
 
@@ -36,32 +36,24 @@ public class CustomHandshakeWebsocketService extends HandshakeWebSocketService {
             WebSocketHandler handler
     ) {
         ServerHttpRequest request = exchange.getRequest();
-        String userId = request.getId();
-        String param = "";
 
-        if(request.getQueryParams().get("roomId") != null){
-            param = request.getQueryParams().get("roomId").get(0);
+        if(request.getQueryParams().get("roomId") == null || request.getQueryParams().get("userId") == null){
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"));
         }
-        String roomId = "room:"+ (param.isEmpty()?userId:param);
+
+        String userId = request.getQueryParams().get("roomId").get(0);
+        String roomId = request.getQueryParams().get("userId").get(0);
 
         exchange.getSession().subscribe((session) -> {
             session.getAttributes().put("userId", userId);
             session.getAttributes().put("roomId", roomId);
         });
 
-        return Mono.just(param.isEmpty()).flatMap(s -> {
-            if(s){
-                // room 생성
-                Room room = new Room(roomId, userId);
-                webSocChannelPublisher.addChannel(roomId);
-
-                return roomService.createRoom(room);
-            } else{
-                // room에 user 추가
-                return roomService.addUser(roomId, userId);
-            }
-        }).flatMap(ss -> {
-            if(ss != 0){
+        return Mono.just(!userId.isEmpty()).flatMap(b -> {
+            if(b){
+                if(webSocChannelPublisher.isEmpty(roomId)){
+                    webSocChannelPublisher.addChannel(roomId);
+                }
                 log.info("Web socket Connect. request id : " + userId);
                 return super.handleRequest(exchange, handler);
             } else{

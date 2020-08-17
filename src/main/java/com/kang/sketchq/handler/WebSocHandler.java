@@ -3,6 +3,7 @@ package com.kang.sketchq.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kang.sketchq.publisher.WebSocChannelPublisher;
 import com.kang.sketchq.type.Message;
+import com.kang.sketchq.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class WebSocHandler implements WebSocketHandler {
     @Autowired
     public WebSocChannelPublisher webSocChannelPublisher;
 
+    @Autowired
+    public UserService userService;
+
     @Override
     public Mono<Void> handle(WebSocketSession webSocketSession) {
         String roomId = webSocketSession.getHandshakeInfo().getAttributes().get("roomId").toString();
@@ -33,6 +37,7 @@ public class WebSocHandler implements WebSocketHandler {
                 .doOnError((error) -> log.error(error.getMessage()))
                 .doOnComplete(() -> {
                     log.info("Complete event. Session disconnect. User: " + userId);
+                    userService.deleteUser(roomId+":"+userId);
                 })
                 .subscribe();
 
