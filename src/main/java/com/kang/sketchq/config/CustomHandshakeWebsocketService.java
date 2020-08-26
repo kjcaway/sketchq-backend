@@ -41,8 +41,8 @@ public class CustomHandshakeWebsocketService extends HandshakeWebSocketService {
             return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"));
         }
 
-        String userId = request.getQueryParams().get("roomId").get(0);
-        String roomId = request.getQueryParams().get("userId").get(0);
+        String userId = request.getQueryParams().get("userId").get(0);
+        String roomId = request.getQueryParams().get("roomId").get(0);
 
         exchange.getSession().subscribe((session) -> {
             session.getAttributes().put("userId", userId);
@@ -51,9 +51,6 @@ public class CustomHandshakeWebsocketService extends HandshakeWebSocketService {
 
         return Mono.just(!userId.isEmpty()).flatMap(b -> {
             if(b){
-                if(webSocChannelPublisher.isEmpty(roomId)){
-                    webSocChannelPublisher.addChannel(roomId);
-                }
                 log.info("Web socket Connect. request id : " + userId);
                 return super.handleRequest(exchange, handler);
             } else{

@@ -24,7 +24,7 @@ public class UserRouter {
     }
 
     @Bean
-    RouterFunction<ServerResponse> routerList() {
+    RouterFunction<ServerResponse> userRouterList() {
         return route()
                 .GET("/users",
                         serverRequest -> {
