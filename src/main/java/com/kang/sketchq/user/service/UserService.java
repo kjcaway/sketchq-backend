@@ -24,7 +24,7 @@ public class UserService {
     }
 
     public Mono<Boolean> joinUser(User user) {
-        return reactiveRedisTemplate.opsForValue().set(user.getRoomId() + ":" + user.getId(), user);
+        return reactiveRedisTemplate.opsForValue().set(user.getRoomId() + ":" + user.getId(), user); // key: "{roomId}:{userId}"
     }
 
     public Mono<List<Object>> findUsers(String roomId) {

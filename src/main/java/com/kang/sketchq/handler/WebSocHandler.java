@@ -1,8 +1,11 @@
 package com.kang.sketchq.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kang.sketchq.publisher.WebSocChannelPublisher;
 import com.kang.sketchq.type.Message;
+import com.kang.sketchq.type.MessageType;
+import com.kang.sketchq.type.User;
 import com.kang.sketchq.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +39,18 @@ public class WebSocHandler implements WebSocketHandler {
                 .doOnNext(message -> webSocChannelPublisher.getMessageQueue(roomId).push(message))
                 .doOnError((error) -> log.error(error.getMessage()))
                 .doOnComplete(() -> {
-                    log.info("Complete event. Session disconnect. User: " + userId);
+                    log.info("doOnComplete. Session disconnect. User: " + userId);
+
                     userService.deleteUser(roomId+":"+userId);
+
+                    User user = new User(userId, "", roomId);
+                    Message message = new Message(MessageType.LEAVE, user, null, null, null);
+                    try {
+                        String messageStr = jsonMapper.writeValueAsString(message);
+                        webSocChannelPublisher.getMessageQueue(roomId).push(messageStr);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
                 })
                 .subscribe();
 
@@ -60,8 +73,10 @@ public class WebSocHandler implements WebSocketHandler {
                     log.info("User(" + userId + ") CHAT: " + messageObj.getChat());
                     break;
                 case DRAW:
+                    //TODO:
                     break;
                 default:
+                    res = "ERROR";
                     break;
             }
 
