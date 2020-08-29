@@ -35,7 +35,7 @@ public class UserService {
                 .log();
     }
 
-    public Mono<Boolean> deleteUser(String key) {
-        return reactiveRedisTemplate.opsForValue().delete(key);
+    public Mono<Long> deleteUser(String key) {
+        return reactiveRedisTemplate.delete(key).log();
     }
 }

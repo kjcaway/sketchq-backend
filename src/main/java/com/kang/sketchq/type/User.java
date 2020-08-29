@@ -9,14 +9,20 @@ public class User implements Serializable {
     private String id;
     private String name;
     private String roomId;
+    private int role;
 
     public User() {
         super();
     }
 
-    public User(String id, String name, String roomId) {
+    public User(String id, String roomId) {
         this.id = id;
-        this.name = name;
         this.roomId = roomId;
+    }
+
+    public User(String id, String roomId, int role) {
+        this.id = id;
+        this.roomId = roomId;
+        this.role = role;
     }
 }

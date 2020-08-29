@@ -41,16 +41,20 @@ public class WebSocHandler implements WebSocketHandler {
                 .doOnComplete(() -> {
                     log.info("doOnComplete. Session disconnect. User: " + userId);
 
-                    userService.deleteUser(roomId+":"+userId);
-
-                    User user = new User(userId, "", roomId);
-                    Message message = new Message(MessageType.LEAVE, user, null, null, null);
-                    try {
-                        String messageStr = jsonMapper.writeValueAsString(message);
-                        webSocChannelPublisher.getMessageQueue(roomId).push(messageStr);
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                    }
+                    userService.deleteUser(roomId+":"+userId)
+                            .flatMap(b -> {
+                                /* LEAVE Message push */
+                                User user = new User(userId, roomId);
+                                Message message = new Message(MessageType.LEAVE, user, null, null, null);
+                                try {
+                                    String messageStr = jsonMapper.writeValueAsString(message);
+                                    webSocChannelPublisher.getMessageQueue(roomId).push(messageStr);
+                                } catch (JsonProcessingException e) {
+                                    e.printStackTrace();
+                                }
+                                return null;
+                            })
+                            .subscribe();
                 })
                 .subscribe();
 

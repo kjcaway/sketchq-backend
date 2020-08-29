@@ -56,21 +56,6 @@ public class UserRouter {
                                         });
                             });
                         })
-                .POST("/leave",
-                        serverRequest -> {
-                            Mono<User> userMono = serverRequest.bodyToMono(User.class);
-                            return userMono.flatMap(user -> {
-                                return userService.deleteUser(user.getId())
-                                        .flatMap(b -> {
-                                            if (b) {
-
-                                                return ServerResponse.ok().body(BodyInserters.fromValue(user.getId()));
-                                            } else {
-                                                return ServerResponse.badRequest().body(BodyInserters.empty());
-                                            }
-                                        });
-                            });
-                        })
                 .build();
     }
 
