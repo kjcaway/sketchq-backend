@@ -8,13 +8,9 @@ import java.io.Serializable;
 public class Room implements Serializable {
     private String id;
     private String creator;
+    private String word;
 
     public Room() {
         super();
-    }
-
-    public Room(String id, String creator) {
-        this.id = id;
-        this.creator = creator;
     }
 }

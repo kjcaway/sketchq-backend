@@ -4,5 +4,7 @@ public enum MessageType {
     DRAW,
     CHAT,
     JOIN,
-    LEAVE
+    LEAVE,
+    START,
+    HIT
 }

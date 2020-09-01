@@ -3,6 +3,7 @@ package com.kang.sketchq.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kang.sketchq.publisher.WebSocChannelPublisher;
+import com.kang.sketchq.room.service.RoomService;
 import com.kang.sketchq.type.Message;
 import com.kang.sketchq.type.MessageType;
 import com.kang.sketchq.type.User;
@@ -26,6 +27,8 @@ public class WebSocHandler implements WebSocketHandler {
 
     @Autowired
     public UserService userService;
+    @Autowired
+    public RoomService roomService;
 
     @Override
     public Mono<Void> handle(WebSocketSession webSocketSession) {
@@ -64,6 +67,7 @@ public class WebSocHandler implements WebSocketHandler {
     private String toEvent(String message, WebSocketSession webSocketSession) {
         String res = "";
         String userId = webSocketSession.getHandshakeInfo().getAttributes().get("userId").toString();
+        String roomId = webSocketSession.getHandshakeInfo().getAttributes().get("roomId").toString();
         try {
             final Message messageObj = jsonMapper.readValue(message, Message.class);
             switch (messageObj.getMessageType()) {
@@ -74,10 +78,30 @@ public class WebSocHandler implements WebSocketHandler {
                     log.info("Session LEAVE: " + userId);
                     break;
                 case CHAT:
-                    log.info("User(" + userId + ") CHAT: " + messageObj.getChat());
+                    log.info("User(" + userId + ") chat: " + messageObj.getChat());
+                    roomService.getWordToRoom("word:"+roomId)
+                            .flatMap(obj -> {
+                                if(messageObj.getChat().equals(obj)){
+                                    /* HIT Message push */
+                                    log.info("User(" + userId + ") hit word.");
+
+                                    User user = new User(userId, roomId);
+                                    Message hitMessage = new Message(MessageType.HIT, user, null, null, null);
+                                    try {
+                                        String messageStr = jsonMapper.writeValueAsString(hitMessage);
+                                        webSocChannelPublisher.getMessageQueue(roomId).push(messageStr);
+                                    } catch (JsonProcessingException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                return null;
+                            })
+                            .subscribe();
                     break;
                 case DRAW:
-                    //TODO:
+                    break;
+                case START:
+                    log.info("User(" + userId + ") start game.");
                     break;
                 default:
                     res = "ERROR";

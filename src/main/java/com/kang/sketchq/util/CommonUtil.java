@@ -1,8 +1,11 @@
 package com.kang.sketchq.util;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class CommonUtil {
+    public static String[] WORDS = {"당나귀", "개", "고양이"};
 
     public static String getRandomString(int length){
         StringBuffer temp = new StringBuffer();
@@ -25,5 +28,11 @@ public class CommonUtil {
             }
         }
         return temp.toString();
+    }
+
+    public static String getRandomWord(){
+        List<String> list = Arrays.asList(WORDS);
+        Random rand = new Random();
+        return list.get(rand.nextInt(list.size()));
     }
 }

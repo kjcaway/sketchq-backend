@@ -7,7 +7,6 @@ import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -34,6 +33,24 @@ public class RoomService {
      */
     public Mono<Long> createRoom(Room room) {
         return reactiveRedisTemplate.opsForList().rightPush("room", room.getId());
+    }
+
+    /**
+     * Set up word for room
+     * @param room
+     * @return boolean
+     */
+    public Mono<Boolean> setWordToRoom(Room room) {
+        return reactiveRedisTemplate.opsForValue().set("word:" + room.getId(), room.getWord()); // key: "word:{roomId}"
+    }
+
+    /**
+     * Get word
+     * @param key
+     * @return boolean
+     */
+    public Mono<Object> getWordToRoom(String key) {
+        return reactiveRedisTemplate.opsForValue().get(key); // key: "word:{roomId}"
     }
 
 //    /**
