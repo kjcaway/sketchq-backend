@@ -53,6 +53,15 @@ public class RoomService {
         return reactiveRedisTemplate.opsForValue().get(key); // key: "word:{roomId}"
     }
 
+    /**
+     * Delete word
+     * @param key
+     * @return boolean
+     */
+    public Mono<Long> removeWordToRoom(String key) {
+        return reactiveRedisTemplate.delete(key); // key: "word:{roomId}"
+    }
+
 //    /**
 //     * Room size
 //     * @param key

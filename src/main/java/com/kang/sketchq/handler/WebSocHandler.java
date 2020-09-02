@@ -90,6 +90,8 @@ public class WebSocHandler implements WebSocketHandler {
                                     try {
                                         String messageStr = jsonMapper.writeValueAsString(hitMessage);
                                         webSocChannelPublisher.getMessageQueue(roomId).push(messageStr);
+
+                                        roomService.removeWordToRoom("word:"+roomId).subscribe();
                                     } catch (JsonProcessingException e) {
                                         e.printStackTrace();
                                     }
