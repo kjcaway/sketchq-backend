@@ -7,6 +7,7 @@ import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -32,7 +33,15 @@ public class RoomService {
      * @return Length of List
      */
     public Mono<Long> createRoom(Room room) {
-        return reactiveRedisTemplate.opsForList().rightPush("room", room.getId());
+        return reactiveRedisTemplate.opsForList().rightPush("room", room);
+    }
+
+    /**
+     * Room List
+     * @return Length of List
+     */
+    public Flux<Object> getRoomList() {
+        return reactiveRedisTemplate.opsForList().range("room", 0, 100);
     }
 
     /**

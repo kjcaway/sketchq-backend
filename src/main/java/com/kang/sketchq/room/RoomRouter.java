@@ -30,19 +30,26 @@ public class RoomRouter {
         return route()
                 .POST("/room",
                         serverRequest -> {
-                            String roomId = CommonUtil.getRandomString(8);
+                            Mono<Room> roomMono = serverRequest.bodyToMono(Room.class);
 
-                            if (roomId == null) return ServerResponse.badRequest().body(BodyInserters.empty());
+                            return roomMono.flatMap(room -> {
+                                String roomId = CommonUtil.getRandomString(8);
 
-                            Room room = new Room();
-                            room.setId(roomId);
+                                if(room.getRoomName() == null) return ServerResponse.badRequest().body(BodyInserters.empty());
 
-                            return roomService.createRoom(room)
-                                    .flatMap(s -> {
-                                        webSocChannelPublisher.addChannel(roomId);
-                                        return ServerResponse.ok().body(BodyInserters.fromValue(roomId));
-                                    });
+                                room.setId(roomId);
+
+                                return roomService.createRoom(room)
+                                        .flatMap(s -> {
+                                            webSocChannelPublisher.addChannel(roomId);
+                                            return ServerResponse.ok().body(BodyInserters.fromValue(roomId));
+                                        });
+                            });
                     })
+                .GET("/rooms",
+                        serverRequest -> roomService.getRoomList()
+                                .collectList()
+                                .flatMap(s -> ServerResponse.ok().body(BodyInserters.fromValue(s))))
                 .POST("/start",
                         serverRequest -> {
                             Mono<User> userMono = serverRequest.bodyToMono(User.class);
