@@ -58,6 +58,8 @@ public class WebSocHandler implements WebSocketHandler {
                                 return null;
                             })
                             .subscribe();
+
+
                 })
                 .subscribe();
 
@@ -104,6 +106,8 @@ public class WebSocHandler implements WebSocketHandler {
                     break;
                 case START:
                     log.info("User(" + userId + ") start game.");
+                    break;
+                case CLEAR:
                     break;
                 default:
                     res = "ERROR";

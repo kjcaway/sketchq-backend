@@ -45,6 +45,14 @@ public class RoomService {
     }
 
     /**
+     * Room delete
+     * @return Length of List
+     */
+    public Mono<Long> removeRoom(Room room) {
+        return reactiveRedisTemplate.opsForList().remove("room", 1, room);
+    }
+
+    /**
      * Set up word for room
      * @param room
      * @return boolean

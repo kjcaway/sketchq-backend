@@ -1,6 +1,5 @@
 package com.kang.sketchq.room;
 
-import com.kang.sketchq.handler.WebSocHandler;
 import com.kang.sketchq.publisher.WebSocChannelPublisher;
 import com.kang.sketchq.room.service.RoomService;
 import com.kang.sketchq.type.Room;
