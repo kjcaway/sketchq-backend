@@ -7,5 +7,6 @@ public enum MessageType {
     LEAVE,
     START,
     HIT,
-    CLEAR
+    CLEAR,
+    ROLECHANGE
 }

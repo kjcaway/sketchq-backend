@@ -31,8 +31,7 @@ public class UserService {
         return reactiveRedisOperations
                 .keys(roomId + ":*")
                 .flatMap(key -> reactiveRedisOperations.opsForValue().get(key))
-                .collectList()
-                .log();
+                .collectList();
     }
 
     public Mono<Long> deleteUser(String key) {
