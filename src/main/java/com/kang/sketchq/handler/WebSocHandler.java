@@ -110,7 +110,6 @@ public class WebSocHandler implements WebSocketHandler {
                 case CLEAR:
                     break;
                 default:
-                    res = "ERROR";
                     break;
             }
 
