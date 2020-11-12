@@ -11,3 +11,7 @@ Backend Java Application for SketchQ Project
 ### Feature
 - Websocket server using webflux
 - Game room(Chat room) using redis
+
+### Release Environment
+- EC2
+- ElasticCache(redis)
