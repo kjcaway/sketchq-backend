@@ -102,13 +102,13 @@ public class WebSocHandler implements WebSocketHandler {
                             })
                             .subscribe();
                     break;
-                case DRAW:
-                    break;
                 case START:
                     log.info("User(" + userId + ") start game.");
                     break;
+                case DRAW:
                 case CLEAR:
-                    break;
+                case HIT:
+                case ROLECHANGE:
                 default:
                     break;
             }

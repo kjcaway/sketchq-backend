@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Component
 public class WebSocChannelPublisher {
-    private Map<String, MessagePublisher> messageQueueMap;
+    private Map<String, MessageQueue> messageQueueMap;
     private Map<String, Flux<String>> channelMap;
 
     @PostConstruct
@@ -19,14 +19,14 @@ public class WebSocChannelPublisher {
     }
 
     public void addChannel(String roomId) {
-        MessagePublisher messagePublisher = new MessagePublisher();
-        Flux<String> channel = Flux.create(messagePublisher).share();
+        MessageQueue messageQueue = new MessageQueue();
+        Flux<String> channel = Flux.create(messageQueue).share();
 
-        messageQueueMap.put(roomId, messagePublisher);
+        messageQueueMap.put(roomId, messageQueue);
         channelMap.put(roomId, channel);
     }
 
-    public MessagePublisher getMessageQueue(String roomId) {
+    public MessageQueue getMessageQueue(String roomId) {
         return messageQueueMap.get(roomId);
     }
 
