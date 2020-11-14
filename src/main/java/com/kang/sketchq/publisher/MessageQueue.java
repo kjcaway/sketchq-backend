@@ -19,6 +19,7 @@ public class MessageQueue implements Consumer<FluxSink<String>> {
         return queue.offer(message);
     }
 
+    
     @Override
     public void accept(FluxSink<String> sink) {
         this.executor.execute(() -> {
