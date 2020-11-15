@@ -1,6 +1,7 @@
 package com.kang.sketchq.room;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kang.sketchq.publisher.WebSocChannelPublisher;
 import com.kang.sketchq.room.service.RoomService;
@@ -94,13 +95,13 @@ public class RoomRouter {
                                             if(userList.size() > 1){
                                                 // UserList ignored myself
                                                 List<Object> targetList = userList.stream().filter(t -> {
-                                                    User u = (User) t;
+                                                    User u =  jsonMapper.convertValue(t, User.class);
                                                     return !u.getId().equals(user.getId());
                                                 }).collect(Collectors.toList());
 
-                                                // Pick User randomly
+                                                // Pick user randomly
                                                 Random r = new Random();
-                                                User u = ((User) targetList.get(r.nextInt(targetList.size())));
+                                                User u = jsonMapper.convertValue(targetList.get(r.nextInt(targetList.size())), User.class);
 
                                                 // ROLE message push
                                                 Message message = new Message(MessageType.ROLECHANGE, u, null, null, null);
@@ -110,7 +111,6 @@ public class RoomRouter {
                                                 } catch (JsonProcessingException e) {
                                                     e.printStackTrace();
                                                 }
-                                                return null;
                                             }
                                             return ServerResponse.ok().body(BodyInserters.empty());
                                         });
