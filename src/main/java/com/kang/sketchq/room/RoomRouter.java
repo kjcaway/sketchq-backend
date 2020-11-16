@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -61,7 +62,12 @@ public class RoomRouter {
                 .GET("/rooms",
                         serverRequest -> roomService.getRoomList()
                                 .collectList()
-                                .flatMap(s -> ServerResponse.ok().body(BodyInserters.fromValue(s))))
+                                .flatMap(s -> {
+                                    if(s.size() > 0){
+                                        return ServerResponse.ok().body(BodyInserters.fromValue(s));
+                                    }
+                                    return ServerResponse.ok().body(BodyInserters.empty());
+                                }))
                 .POST("/start",
                         serverRequest -> {
                             Mono<User> userMono = serverRequest.bodyToMono(User.class);

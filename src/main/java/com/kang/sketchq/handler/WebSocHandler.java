@@ -6,6 +6,7 @@ import com.kang.sketchq.publisher.WebSocChannelPublisher;
 import com.kang.sketchq.room.service.RoomService;
 import com.kang.sketchq.type.Message;
 import com.kang.sketchq.type.MessageType;
+import com.kang.sketchq.type.Room;
 import com.kang.sketchq.type.User;
 import com.kang.sketchq.user.service.UserService;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class WebSocHandler implements WebSocketHandler {
 
                     userService.deleteUser(roomId+":"+userId)
                             .flatMap(b -> {
-                                /* LEAVE Message push */
+                                /* Leave Message push */
                                 User user = new User(userId, roomId);
                                 Message message = new Message(MessageType.LEAVE, user, null, null, null);
                                 try {
@@ -59,6 +60,30 @@ public class WebSocHandler implements WebSocketHandler {
                             })
                             .subscribe();
 
+                    userService.findUsers(roomId)
+                            .flatMap(userList -> {
+                                if(userList.size() == 0){
+                                    /* Delete Room */
+                                    roomService.getRoomList()
+                                            .collectList()
+                                            .flatMap(r -> {
+                                                r.stream().forEach(rm -> {
+                                                    Room room = jsonMapper.convertValue(rm, Room.class);
+                                                    if(room.getId().equals(roomId)){
+                                                        try {
+                                                            roomService.removeRoom(jsonMapper.writeValueAsString(room));
+                                                        } catch (JsonProcessingException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                });
+                                                return null;
+                                            }).subscribe();
+                                    roomService.removeWordToRoom(roomId);
+                                    webSocChannelPublisher.removeChannel(roomId);
+                                }
+                                return null;
+                            }).subscribe();
 
                 })
                 .subscribe();

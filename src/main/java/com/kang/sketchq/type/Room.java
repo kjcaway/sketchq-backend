@@ -13,4 +13,8 @@ public class Room implements Serializable {
     public Room() {
         super();
     }
+
+    public Room(String id){
+        this.id = id;
+    }
 }

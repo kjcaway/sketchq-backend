@@ -37,4 +37,9 @@ public class WebSocChannelPublisher {
     public boolean isEmpty(String roomId) {
         return messageQueueMap.containsKey(roomId);
     }
+
+    public void removeChannel(String roomId) {
+        messageQueueMap.remove(roomId);
+        channelMap.remove(roomId);
+    }
 }
