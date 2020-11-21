@@ -64,22 +64,9 @@ public class WebSocHandler implements WebSocketHandler {
                             .flatMap(userList -> {
                                 if(userList.size() == 0){
                                     /* Delete Room */
-                                    roomService.getRoomList()
-                                            .collectList()
-                                            .flatMap(r -> {
-                                                r.stream().forEach(rm -> {
-                                                    Room room = jsonMapper.convertValue(rm, Room.class);
-                                                    if(room.getId().equals(roomId)){
-                                                        try {
-                                                            roomService.removeRoom(jsonMapper.writeValueAsString(room));
-                                                        } catch (JsonProcessingException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-                                                });
-                                                return null;
-                                            }).subscribe();
-                                    roomService.removeWordToRoom(roomId);
+                                    roomService.removeRoom("room:" + roomId).subscribe();
+                                    roomService.removeWordToRoom("word" + roomId).subscribe();
+
                                     webSocChannelPublisher.removeChannel(roomId);
                                 }
                                 return null;

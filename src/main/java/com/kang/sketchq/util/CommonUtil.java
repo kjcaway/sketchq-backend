@@ -1,6 +1,8 @@
 package com.kang.sketchq.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
@@ -37,5 +39,16 @@ public class CommonUtil {
         List<String> list = Arrays.asList(WORDS);
         Random rand = new Random();
         return list.get(rand.nextInt(list.size()));
+    }
+
+    /**
+     * 현재 시간을 반환
+     * @return yyyyMMddHHmmss
+     */
+    public static String getNowDateTime(String format){
+        SimpleDateFormat simpleDateFormatformat = new SimpleDateFormat( format);
+        Calendar time = Calendar.getInstance();
+
+        return simpleDateFormatformat.format(time.getTime());
     }
 }

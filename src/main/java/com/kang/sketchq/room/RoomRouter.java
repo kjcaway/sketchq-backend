@@ -51,6 +51,7 @@ public class RoomRouter {
                                 if(room.getRoomName() == null) return ServerResponse.badRequest().body(BodyInserters.empty());
 
                                 room.setId(roomId);
+                                room.setCreated(CommonUtil.getNowDateTime("yyyy-MM-dd HH:mm:ss"));
 
                                 return roomService.createRoom(room)
                                         .flatMap(s -> {
@@ -61,10 +62,19 @@ public class RoomRouter {
                     })
                 .GET("/rooms",
                         serverRequest -> roomService.getRoomList()
-                                .collectList()
-                                .flatMap(s -> {
-                                    if(s.size() > 0){
-                                        return ServerResponse.ok().body(BodyInserters.fromValue(s));
+                                .flatMap(list -> {
+                                    if(list.size() > 0){
+                                        list.stream()
+                                                .sorted((a,b) -> {
+                                                    //TODO: 정렬 재 구현
+                                                    Room aRoom = jsonMapper.convertValue(a, Room.class);
+                                                    Room bRoom = jsonMapper.convertValue(b, Room.class);
+                                                    return bRoom.getCreated().compareTo(aRoom.getCreated());
+                                                })
+                                                .forEach(room -> {
+                                                    jsonMapper.convertValue(room, Room.class).setWord(null);
+                                                });
+                                        return ServerResponse.ok().body(BodyInserters.fromValue(list));
                                     }
                                     return ServerResponse.ok().body(BodyInserters.empty());
                                 }))

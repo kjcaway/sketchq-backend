@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 public class RoomService {
     private final ReactiveRedisConnectionFactory factory;
@@ -32,24 +34,27 @@ public class RoomService {
      * @param room
      * @return Length of List
      */
-    public Mono<Long> createRoom(Room room) {
-        return reactiveRedisTemplate.opsForList().rightPush("room", room);
+    public Mono<Boolean> createRoom(Room room) {
+        return reactiveRedisTemplate.opsForValue().set("room:" + room.getId(), room); // key: "room:{roomId}"
     }
 
     /**
      * Room List
      * @return Length of List
      */
-    public Flux<Object> getRoomList() {
-        return reactiveRedisTemplate.opsForList().range("room", 0, 100);
+    public Mono<List<Object>> getRoomList() {
+        return reactiveRedisOperations
+                .keys( "room:*")
+                .flatMap(key -> reactiveRedisOperations.opsForValue().get(key))
+                .collectList();
     }
 
     /**
      * Room delete
      * @return Length of List
      */
-    public Mono<Long> removeRoom(String room) {
-        return reactiveRedisTemplate.opsForList().remove("room", 1, room);
+    public Mono<Long> removeRoom(String key) {
+        return reactiveRedisTemplate.delete(key); // key : "room:{roomId}"
     }
 
     /**
