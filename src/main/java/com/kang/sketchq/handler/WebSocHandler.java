@@ -98,17 +98,19 @@ public class WebSocHandler implements WebSocketHandler {
                                 if(messageObj.getChat().equals(obj)){
                                     /* HIT Message push */
                                     log.info("User(" + userId + ") hit word.");
+                                    userService.findUser(roomId+":"+userId)
+                                            .subscribe(userObj -> {
+                                                User user = jsonMapper.convertValue(userObj, User.class);
+                                                Message hitMessage = new Message(MessageType.HIT, user, messageObj.getChat(), null, null);
+                                                try {
+                                                    String messageStr = jsonMapper.writeValueAsString(hitMessage);
+                                                    webSocChannelPublisher.getMessageQueue(roomId).push(messageStr);
 
-                                    User user = new User(userId, roomId);
-                                    Message hitMessage = new Message(MessageType.HIT, user, null, null, null);
-                                    try {
-                                        String messageStr = jsonMapper.writeValueAsString(hitMessage);
-                                        webSocChannelPublisher.getMessageQueue(roomId).push(messageStr);
-
-                                        roomService.removeWordToRoom("word:"+roomId).subscribe();
-                                    } catch (JsonProcessingException e) {
-                                        e.printStackTrace();
-                                    }
+                                                    roomService.removeWordToRoom("word:"+roomId).subscribe();
+                                                } catch (JsonProcessingException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            });
                                 }
                                 return null;
                             })

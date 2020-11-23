@@ -27,6 +27,10 @@ public class UserService {
         return reactiveRedisTemplate.opsForValue().set(user.getRoomId() + ":" + user.getId(), user); // key: "{roomId}:{userId}"
     }
 
+    public Mono<Object> findUser(String key) {
+        return reactiveRedisTemplate.opsForValue().get(key);
+    }
+
     public Mono<List<Object>> findUsers(String roomId) {
         return reactiveRedisOperations
                 .keys(roomId + ":*")
