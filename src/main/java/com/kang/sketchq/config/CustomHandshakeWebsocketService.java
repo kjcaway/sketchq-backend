@@ -1,8 +1,7 @@
 package com.kang.sketchq.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kang.sketchq.publisher.WebSocChannelPublisher;
-import com.kang.sketchq.type.User;
+import com.kang.sketchq.handler.WebSocChannelService;
 import com.kang.sketchq.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,7 @@ public class CustomHandshakeWebsocketService extends HandshakeWebSocketService {
     @Autowired
     public UserService userService;
     @Autowired
-    public WebSocChannelPublisher webSocChannelPublisher;
+    public WebSocChannelService webSocChannelService;
 
     public CustomHandshakeWebsocketService(RequestUpgradeStrategy upgradeStrategy) {
         super(upgradeStrategy);

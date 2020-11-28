@@ -2,11 +2,9 @@ package com.kang.sketchq.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kang.sketchq.publisher.WebSocChannelPublisher;
 import com.kang.sketchq.room.service.RoomService;
 import com.kang.sketchq.type.Message;
 import com.kang.sketchq.type.MessageType;
-import com.kang.sketchq.type.Room;
 import com.kang.sketchq.type.User;
 import com.kang.sketchq.user.service.UserService;
 import org.slf4j.Logger;
@@ -24,7 +22,7 @@ public class WebSocHandler implements WebSocketHandler {
     final private ObjectMapper jsonMapper = new ObjectMapper();
 
     @Autowired
-    public WebSocChannelPublisher webSocChannelPublisher;
+    public WebSocChannelService webSocChannelService;
 
     @Autowired
     public UserService userService;
@@ -40,7 +38,7 @@ public class WebSocHandler implements WebSocketHandler {
                 .receive()
                 .map(webSocketMessage -> webSocketMessage.getPayloadAsText())
                 .map(message -> this.toEvent(message, webSocketSession))
-                .doOnNext(message -> webSocChannelPublisher.getMessageQueue(roomId).push(message))
+                .doOnNext(message -> webSocChannelService.getMessageQueue(roomId).push(message))
                 .doOnError((error) -> log.error(error.getMessage()))
                 .doOnComplete(() -> {
                     log.info("doOnComplete. Session disconnect. User: " + userId);
@@ -52,7 +50,7 @@ public class WebSocHandler implements WebSocketHandler {
                                 Message message = new Message(MessageType.LEAVE, user, null, null, null);
                                 try {
                                     String messageStr = jsonMapper.writeValueAsString(message);
-                                    webSocChannelPublisher.getMessageQueue(roomId).push(messageStr);
+                                    webSocChannelService.getMessageQueue(roomId).push(messageStr);
                                 } catch (JsonProcessingException e) {
                                     e.printStackTrace();
                                 }
@@ -67,7 +65,7 @@ public class WebSocHandler implements WebSocketHandler {
                                     roomService.removeRoom(roomId).subscribe();
                                     roomService.removeWordToRoom(roomId).subscribe();
 
-                                    webSocChannelPublisher.removeChannel(roomId);
+                                    webSocChannelService.removeChannel(roomId);
                                 }
                                 return null;
                             })
@@ -76,7 +74,7 @@ public class WebSocHandler implements WebSocketHandler {
                 })
                 .subscribe();
 
-        return webSocketSession.send(webSocChannelPublisher.getChannel(roomId).map(webSocketSession::textMessage));
+        return webSocketSession.send(webSocChannelService.getChannel(roomId).map(webSocketSession::textMessage));
     }
 
     private String toEvent(String message, WebSocketSession webSocketSession) {
@@ -105,7 +103,7 @@ public class WebSocHandler implements WebSocketHandler {
                                                 Message hitMessage = new Message(MessageType.HIT, user, messageObj.getChat(), null, null);
                                                 try {
                                                     String messageStr = jsonMapper.writeValueAsString(hitMessage);
-                                                    webSocChannelPublisher.getMessageQueue(roomId).push(messageStr);
+                                                    webSocChannelService.getMessageQueue(roomId).push(messageStr);
 
                                                     roomService.removeWordToRoom("word:"+roomId).subscribe();
                                                 } catch (JsonProcessingException e) {

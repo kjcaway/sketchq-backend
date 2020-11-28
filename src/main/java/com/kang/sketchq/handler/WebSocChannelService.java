@@ -1,5 +1,6 @@
-package com.kang.sketchq.publisher;
+package com.kang.sketchq.handler;
 
+import com.kang.sketchq.publisher.MessageQueue;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
@@ -8,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
-public class WebSocChannelPublisher {
+public class WebSocChannelService {
     private Map<String, MessageQueue> messageQueueMap;
     private Map<String, Flux<String>> channelMap;
 
@@ -32,10 +33,6 @@ public class WebSocChannelPublisher {
 
     public Flux<String> getChannel(String roomId) {
         return channelMap.get(roomId);
-    }
-
-    public boolean isEmpty(String roomId) {
-        return messageQueueMap.containsKey(roomId);
     }
 
     public void removeChannel(String roomId) {

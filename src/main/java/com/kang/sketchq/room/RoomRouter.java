@@ -1,9 +1,8 @@
 package com.kang.sketchq.room;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kang.sketchq.publisher.WebSocChannelPublisher;
+import com.kang.sketchq.handler.WebSocChannelService;
 import com.kang.sketchq.room.service.RoomService;
 import com.kang.sketchq.type.Message;
 import com.kang.sketchq.type.MessageType;
@@ -18,7 +17,6 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -29,13 +27,13 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class RoomRouter {
     private final RoomService roomService;
     private final UserService userService;
-    private final WebSocChannelPublisher webSocChannelPublisher;
+    private final WebSocChannelService webSocChannelService;
     final private ObjectMapper jsonMapper = new ObjectMapper();
 
-    public RoomRouter(RoomService roomService, UserService userService, WebSocChannelPublisher webSocChannelPublisher) {
+    public RoomRouter(RoomService roomService, UserService userService, WebSocChannelService webSocChannelService) {
         this.roomService = roomService;
         this.userService = userService;
-        this.webSocChannelPublisher = webSocChannelPublisher;
+        this.webSocChannelService = webSocChannelService;
     }
 
     @Bean
@@ -55,7 +53,7 @@ public class RoomRouter {
 
                                 return roomService.createRoom(room)
                                         .flatMap(s -> {
-                                            webSocChannelPublisher.addChannel(roomId);
+                                            webSocChannelService.addChannel(roomId);
                                             return ServerResponse.ok().body(BodyInserters.fromValue(roomId));
                                         });
                             });
@@ -123,7 +121,7 @@ public class RoomRouter {
                                                 Message message = new Message(MessageType.ROLECHANGE, u, null, null, null);
                                                 try {
                                                     String messageStr = jsonMapper.writeValueAsString(message);
-                                                    webSocChannelPublisher.getMessageQueue(user.getRoomId()).push(messageStr);
+                                                    webSocChannelService.getMessageQueue(user.getRoomId()).push(messageStr);
                                                 } catch (JsonProcessingException e) {
                                                     e.printStackTrace();
                                                 }

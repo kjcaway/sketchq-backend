@@ -1,13 +1,10 @@
 package com.kang.sketchq.room.service;
 
-import com.kang.sketchq.publisher.WebSocChannelPublisher;
 import com.kang.sketchq.type.Room;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -17,9 +14,6 @@ public class RoomService {
     private final ReactiveRedisConnectionFactory factory;
     private final ReactiveRedisOperations<String, Object> reactiveRedisOperations;
     private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
-
-    @Autowired
-    public WebSocChannelPublisher webSocChannelPublisher;
 
     public RoomService(ReactiveRedisConnectionFactory factory,
                        ReactiveRedisOperations<String, Object> reactiveRedisOperations,
