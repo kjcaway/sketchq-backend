@@ -23,14 +23,30 @@ public class UserService {
         this.reactiveRedisTemplate = reactiveRedisTemplate;
     }
 
-    public Mono<Boolean> joinUser(User user) {
+    /**
+     * Create User
+     * @param user
+     * @return
+     */
+    public Mono<Boolean> createUser(User user) {
         return reactiveRedisTemplate.opsForValue().set(user.getRoomId() + ":" + user.getId(), user); // key: "{roomId}:{userId}"
     }
 
-    public Mono<Object> findUser(String key) {
-        return reactiveRedisTemplate.opsForValue().get(key);
+    /**
+     * Find User
+     * @param roomId
+     * @param userId
+     * @return
+     */
+    public Mono<Object> findUser(String roomId, String userId) {
+        return reactiveRedisTemplate.opsForValue().get(roomId + ":" + userId);
     }
 
+    /**
+     * Find User List
+     * @param roomId
+     * @return
+     */
     public Mono<List<Object>> findUsers(String roomId) {
         return reactiveRedisOperations
                 .keys(roomId + ":*")
@@ -38,7 +54,13 @@ public class UserService {
                 .collectList();
     }
 
-    public Mono<Long> deleteUser(String key) {
-        return reactiveRedisTemplate.delete(key);
+    /**
+     * Delete User
+     * @param roomId
+     * @param userId
+     * @return
+     */
+    public Mono<Long> deleteUser(String roomId, String userId) {
+        return reactiveRedisTemplate.delete(roomId + ":" + userId);
     }
 }

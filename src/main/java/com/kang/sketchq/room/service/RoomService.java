@@ -51,10 +51,11 @@ public class RoomService {
 
     /**
      * Room delete
+     * @param roomId
      * @return Length of List
      */
-    public Mono<Long> removeRoom(String key) {
-        return reactiveRedisTemplate.delete(key); // key : "room:{roomId}"
+    public Mono<Long> removeRoom(String roomId) {
+        return reactiveRedisTemplate.delete("room:" + roomId); // key : "room:{roomId}"
     }
 
     /**
@@ -68,47 +69,19 @@ public class RoomService {
 
     /**
      * Get word
-     * @param key
+     * @param roomId
      * @return boolean
      */
-    public Mono<Object> getWordToRoom(String key) {
-        return reactiveRedisTemplate.opsForValue().get(key); // key: "word:{roomId}"
+    public Mono<Object> getWordToRoom(String roomId) {
+        return reactiveRedisTemplate.opsForValue().get("word:" + roomId); // key: "word:{roomId}"
     }
 
     /**
      * Delete word
-     * @param key
+     * @param roomId
      * @return boolean
      */
-    public Mono<Long> removeWordToRoom(String key) {
-        return reactiveRedisTemplate.delete(key); // key: "word:{roomId}"
+    public Mono<Long> removeWordToRoom(String roomId) {
+        return reactiveRedisTemplate.delete("word:" + roomId); // key: "word:{roomId}"
     }
-
-//    /**
-//     * Room size
-//     * @param key
-//     * @return Length of List
-//     */
-//    public Mono<Long> roomSize(String key) {
-//        return reactiveRedisTemplate.opsForList().size(key);
-//    }
-//
-//    /**
-//     * add User
-//     * @param key, id
-//     * @return Length of List
-//     */
-//    public Mono<Long> addUser(String key, String id) {
-//        return reactiveRedisTemplate.opsForList().rightPush(key, id);
-//    }
-//
-//    /**
-//     * get Users
-//     * @param key, id
-//     * @return Flux<UserId>
-//     */
-//    public Flux<Object> getUserList(String key) {
-//        return reactiveRedisTemplate.opsForList().range(key, 0, 100);
-//    }
-
 }

@@ -45,7 +45,7 @@ public class UserRouter {
 
                                 if(user.getRoomId() == null) return ServerResponse.badRequest().body(BodyInserters.empty());
 
-                                return userService.joinUser(user)
+                                return userService.createUser(user)
                                         .flatMap(b -> {
                                             if (b) {
                                                 return ServerResponse.ok().body(BodyInserters.fromValue(id));

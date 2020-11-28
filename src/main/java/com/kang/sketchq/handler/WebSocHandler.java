@@ -45,7 +45,7 @@ public class WebSocHandler implements WebSocketHandler {
                 .doOnComplete(() -> {
                     log.info("doOnComplete. Session disconnect. User: " + userId);
 
-                    userService.deleteUser(roomId+":"+userId)
+                    userService.deleteUser(roomId, userId)
                             .flatMap(b -> {
                                 /* Leave Message push */
                                 User user = new User(userId, roomId);
@@ -64,13 +64,14 @@ public class WebSocHandler implements WebSocketHandler {
                             .flatMap(userList -> {
                                 if(userList.size() == 0){
                                     /* Delete Room */
-                                    roomService.removeRoom("room:" + roomId).subscribe();
-                                    roomService.removeWordToRoom("word" + roomId).subscribe();
+                                    roomService.removeRoom(roomId).subscribe();
+                                    roomService.removeWordToRoom(roomId).subscribe();
 
                                     webSocChannelPublisher.removeChannel(roomId);
                                 }
                                 return null;
-                            }).subscribe();
+                            })
+                            .subscribe();
 
                 })
                 .subscribe();
@@ -93,12 +94,12 @@ public class WebSocHandler implements WebSocketHandler {
                     break;
                 case CHAT:
                     log.info("User(" + userId + ") chat: " + messageObj.getChat());
-                    roomService.getWordToRoom("word:"+roomId)
+                    roomService.getWordToRoom(roomId)
                             .flatMap(obj -> {
                                 if(messageObj.getChat().equals(obj)){
                                     /* HIT Message push */
                                     log.info("User(" + userId + ") hit word.");
-                                    userService.findUser(roomId+":"+userId)
+                                    userService.findUser(roomId, userId)
                                             .subscribe(userObj -> {
                                                 User user = jsonMapper.convertValue(userObj, User.class);
                                                 Message hitMessage = new Message(MessageType.HIT, user, messageObj.getChat(), null, null);

@@ -13,10 +13,4 @@ public class Drawing implements Serializable {
     public Drawing() {
         super();
     }
-
-    public Drawing(String color, int[] originP, int[] newP) {
-        this.color = color;
-        this.originP = originP;
-        this.newP = newP;
-    }
 }

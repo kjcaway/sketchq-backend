@@ -19,10 +19,4 @@ public class User implements Serializable {
         this.id = id;
         this.roomId = roomId;
     }
-
-    public User(String id, String roomId, int role) {
-        this.id = id;
-        this.roomId = roomId;
-        this.role = role;
-    }
 }
