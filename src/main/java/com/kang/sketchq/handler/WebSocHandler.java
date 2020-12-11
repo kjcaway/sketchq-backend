@@ -38,7 +38,7 @@ public class WebSocHandler implements WebSocketHandler {
                 .receive()
                 .map(webSocketMessage -> webSocketMessage.getPayloadAsText())
                 .map(message -> this.toEvent(message, webSocketSession))
-                .doOnNext(message -> webSocChannelService.getMessageQueue(roomId).push(message))
+                .doOnNext(message -> webSocChannelService.getMessaagePublisher(roomId).push(message))
                 .doOnError((error) -> log.error(error.getMessage()))
                 .doOnComplete(() -> {
                     log.info("doOnComplete. Session disconnect. User: " + userId);
@@ -50,7 +50,7 @@ public class WebSocHandler implements WebSocketHandler {
                                 Message message = new Message(MessageType.LEAVE, user, null, null, null);
                                 try {
                                     String messageStr = jsonMapper.writeValueAsString(message);
-                                    webSocChannelService.getMessageQueue(roomId).push(messageStr);
+                                    webSocChannelService.getMessaagePublisher(roomId).push(messageStr);
                                 } catch (JsonProcessingException e) {
                                     e.printStackTrace();
                                 }
@@ -103,7 +103,7 @@ public class WebSocHandler implements WebSocketHandler {
                                                 Message hitMessage = new Message(MessageType.HIT, user, messageObj.getChat(), null, null);
                                                 try {
                                                     String messageStr = jsonMapper.writeValueAsString(hitMessage);
-                                                    webSocChannelService.getMessageQueue(roomId).push(messageStr);
+                                                    webSocChannelService.getMessaagePublisher(roomId).push(messageStr);
 
                                                     roomService.removeWordToRoom("word:"+roomId).subscribe();
                                                 } catch (JsonProcessingException e) {

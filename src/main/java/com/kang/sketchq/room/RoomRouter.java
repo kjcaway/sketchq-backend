@@ -121,7 +121,7 @@ public class RoomRouter {
                                                 Message message = new Message(MessageType.ROLECHANGE, u, null, null, null);
                                                 try {
                                                     String messageStr = jsonMapper.writeValueAsString(message);
-                                                    webSocChannelService.getMessageQueue(user.getRoomId()).push(messageStr);
+                                                    webSocChannelService.getMessaagePublisher(user.getRoomId()).push(messageStr);
                                                 } catch (JsonProcessingException e) {
                                                     e.printStackTrace();
                                                 }

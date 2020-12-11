@@ -10,15 +10,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
-public class MessageQueue implements Consumer<FluxSink<String>> {
-    private static final Logger log = LoggerFactory.getLogger(MessageQueue.class);
+public class MessagePublisher implements Consumer<FluxSink<String>> {
+    private static final Logger log = LoggerFactory.getLogger(MessagePublisher.class);
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>();
     private final Executor executor = Executors.newSingleThreadExecutor();
 
     public boolean push(String message) {
         return queue.offer(message);
     }
-
 
     @Override
     public void accept(FluxSink<String> sink) {

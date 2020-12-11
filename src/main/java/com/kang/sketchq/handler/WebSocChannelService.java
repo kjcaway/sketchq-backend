@@ -1,6 +1,6 @@
 package com.kang.sketchq.handler;
 
-import com.kang.sketchq.publisher.MessageQueue;
+import com.kang.sketchq.publisher.MessagePublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
@@ -10,25 +10,25 @@ import java.util.Map;
 
 @Component
 public class WebSocChannelService {
-    private Map<String, MessageQueue> messageQueueMap;
+    private Map<String, MessagePublisher> messagePublisherMap;
     private Map<String, Flux<String>> channelMap;
 
     @PostConstruct
     private void init() {
-        messageQueueMap = new LinkedHashMap<>();
+        messagePublisherMap = new LinkedHashMap<>();
         channelMap = new LinkedHashMap<>();
     }
 
     public void addChannel(String roomId) {
-        MessageQueue messageQueue = new MessageQueue();
-        Flux<String> channel = Flux.create(messageQueue).share();
+        MessagePublisher messagePublisher = new MessagePublisher();
+        Flux<String> channel = Flux.create(messagePublisher).share();
 
-        messageQueueMap.put(roomId, messageQueue);
+        messagePublisherMap.put(roomId, messagePublisher);
         channelMap.put(roomId, channel);
     }
 
-    public MessageQueue getMessageQueue(String roomId) {
-        return messageQueueMap.get(roomId);
+    public MessagePublisher getMessaagePublisher(String roomId) {
+        return messagePublisherMap.get(roomId);
     }
 
     public Flux<String> getChannel(String roomId) {
@@ -36,7 +36,7 @@ public class WebSocChannelService {
     }
 
     public void removeChannel(String roomId) {
-        messageQueueMap.remove(roomId);
+        messagePublisherMap.remove(roomId);
         channelMap.remove(roomId);
     }
 }
