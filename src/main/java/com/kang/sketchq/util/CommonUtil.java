@@ -17,6 +17,11 @@ public class CommonUtil {
             "미국", "농구공", "축구공", "해운대", "서울", "북한", "김정은", "김국진", "김구라", "유재석",
             "조세호", "돼지", "소", "총기", "쯔위", "아이유"};
 
+    /**
+     * 랜덤 아이디 반환
+     * @param length
+     * @return String
+     */
     public static String getRandomString(int length){
         StringBuffer temp = new StringBuffer();
         Random rnd = new Random();
@@ -40,6 +45,10 @@ public class CommonUtil {
         return temp.toString();
     }
 
+    /**
+     * 랜덤 문자열 반환
+     * @return String
+     */
     public static String getRandomWord(){
         List<String> list = Arrays.asList(WORDS);
         Random rand = new Random();
