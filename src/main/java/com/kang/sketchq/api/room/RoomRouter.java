@@ -1,14 +1,14 @@
-package com.kang.sketchq.room;
+package com.kang.sketchq.api.room;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kang.sketchq.handler.WebSocChannelService;
-import com.kang.sketchq.room.service.RoomService;
+import com.kang.sketchq.ws.handler.WebSocChannelService;
+import com.kang.sketchq.api.room.service.RoomService;
 import com.kang.sketchq.type.Message;
 import com.kang.sketchq.type.MessageType;
 import com.kang.sketchq.type.Room;
 import com.kang.sketchq.type.User;
-import com.kang.sketchq.user.service.UserService;
+import com.kang.sketchq.api.user.service.UserService;
 import com.kang.sketchq.util.CommonUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

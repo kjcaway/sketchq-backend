@@ -1,4 +1,4 @@
-package com.kang.sketchq.publisher;
+package com.kang.sketchq.ws.publisher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

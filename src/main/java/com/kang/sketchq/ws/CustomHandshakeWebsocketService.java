@@ -1,8 +1,8 @@
-package com.kang.sketchq.config;
+package com.kang.sketchq.ws;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kang.sketchq.handler.WebSocChannelService;
-import com.kang.sketchq.user.service.UserService;
+import com.kang.sketchq.ws.handler.WebSocChannelService;
+import com.kang.sketchq.api.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

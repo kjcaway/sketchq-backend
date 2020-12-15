@@ -1,4 +1,4 @@
-package com.kang.sketchq.user.service;
+package com.kang.sketchq.api.user.service;
 
 //@SpringBootTest
 //public class UserServiceTest {

@@ -1,6 +1,7 @@
 package com.kang.sketchq.config;
 
-import com.kang.sketchq.handler.WebSocHandler;
+import com.kang.sketchq.ws.CustomHandshakeWebsocketService;
+import com.kang.sketchq.ws.handler.WebSocHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.HandlerMapping;
@@ -14,10 +15,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class WebSocConfiguration {
+public class WebSocConfig{
     private WebSocHandler webSocHandler;
 
-    public WebSocConfiguration(WebSocHandler webSocketHandler) {
+    public WebSocConfig(WebSocHandler webSocketHandler) {
         this.webSocHandler = webSocketHandler;
     }
 

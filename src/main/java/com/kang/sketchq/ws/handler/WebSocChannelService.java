@@ -1,6 +1,6 @@
-package com.kang.sketchq.handler;
+package com.kang.sketchq.ws.handler;
 
-import com.kang.sketchq.publisher.MessagePublisher;
+import com.kang.sketchq.ws.publisher.MessagePublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 

@@ -1,4 +1,4 @@
-package com.kang.sketchq.room.service;
+package com.kang.sketchq.api.room.service;
 
 import com.kang.sketchq.type.Room;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;

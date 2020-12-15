@@ -1,4 +1,4 @@
-package com.kang.sketchq.user.service;
+package com.kang.sketchq.api.user.service;
 
 import com.kang.sketchq.type.User;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;

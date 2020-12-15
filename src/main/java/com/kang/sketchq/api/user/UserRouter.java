@@ -1,7 +1,7 @@
-package com.kang.sketchq.user;
+package com.kang.sketchq.api.user;
 
 import com.kang.sketchq.type.User;
-import com.kang.sketchq.user.service.UserService;
+import com.kang.sketchq.api.user.service.UserService;
 import com.kang.sketchq.util.CommonUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
