@@ -58,10 +58,10 @@ public class WebSocHandler implements WebSocketHandler {
                             })
                             .subscribe();
 
-                    userRedisClient.findUsers(roomId)
+                    userRedisClient.scanUsers(roomId)
                             .flatMap(userList -> {
                                 if(userList.size() == 0){
-                                    /* Delete Room */
+                                    /* Delete room and channel */
                                     roomRedisClient.deleteRoom(roomId).subscribe();
                                     roomRedisClient.deleteWord(roomId).subscribe();
 
@@ -97,7 +97,7 @@ public class WebSocHandler implements WebSocketHandler {
                                 if(messageObj.getChat().equals(obj)){
                                     /* HIT Message push */
                                     log.info("User(" + userId + ") hit word.");
-                                    userRedisClient.findUser(roomId, userId)
+                                    userRedisClient.getUser(roomId, userId)
                                             .subscribe(userObj -> {
                                                 User user = jsonMapper.convertValue(userObj, User.class);
                                                 Message hitMessage = new Message(MessageType.HIT, user, messageObj.getChat(), null, null);

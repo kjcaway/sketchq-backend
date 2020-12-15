@@ -25,30 +25,30 @@ public class UserRedisClient{
     }
 
     /**
-     * Create User
+     * Set User
      * @param user
      * @return
      */
-    public Mono<Boolean> createUser(User user) {
+    public Mono<Boolean> setUser(User user) {
         return reactiveRedisTemplate.opsForValue().set(user.getRoomId() + ":" + user.getId(), user); // key: "{roomId}:{userId}"
     }
 
     /**
-     * Find User
+     * Get User
      * @param roomId
      * @param userId
      * @return
      */
-    public Mono<Object> findUser(String roomId, String userId) {
+    public Mono<Object> getUser(String roomId, String userId) {
         return reactiveRedisTemplate.opsForValue().get(roomId + ":" + userId);
     }
 
     /**
-     * Find User List
+     * User List
      * @param roomId
      * @return
      */
-    public Mono<List<Object>> findUsers(String roomId) {
+    public Mono<List<Object>> scanUsers(String roomId) {
         ScanOptions options = ScanOptions.scanOptions().match(roomId + ":*").count(100).build();
         return reactiveRedisOperations
                 .scan(options)

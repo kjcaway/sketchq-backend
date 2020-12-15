@@ -25,7 +25,7 @@ public class RoomRedisClient{
     }
 
     /**
-     * Room create
+     * Set Room
      * @param room
      * @return Length of List
      */
@@ -46,7 +46,7 @@ public class RoomRedisClient{
     }
 
     /**
-     * Room delete
+     * Delete Room
      * @param roomId
      * @return Length of List
      */

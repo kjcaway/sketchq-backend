@@ -33,7 +33,7 @@ public class UserHandler{
      * @return Mono<ServerResponse>
      */
     public Mono<ServerResponse> roleChange(User user){
-        return userRedisClient.findUsers(user.getRoomId())
+        return userRedisClient.scanUsers(user.getRoomId())
                 .flatMap(userList -> {
                     if(userList.size() > 1){
                         // UserList ignored myself

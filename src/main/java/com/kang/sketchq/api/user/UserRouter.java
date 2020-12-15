@@ -31,7 +31,7 @@ public class UserRouter {
                             if (!roomId.isPresent()) {
                                 return ServerResponse.badRequest().body(BodyInserters.empty());
                             } else {
-                                return userRedisClient.findUsers(roomId.get())
+                                return userRedisClient.scanUsers(roomId.get())
                                         .flatMap(s -> ServerResponse.ok().body(BodyInserters.fromValue(s)));
                             }
                         })
@@ -43,7 +43,7 @@ public class UserRouter {
 
                                 user.setId(CommonUtil.getRandomString(8));
 
-                                return userRedisClient.createUser(user)
+                                return userRedisClient.setUser(user)
                                         .flatMap(b -> {
                                             if (b) {
                                                 return ServerResponse.ok().body(BodyInserters.fromValue(user.getId()));
