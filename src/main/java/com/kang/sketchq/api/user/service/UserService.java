@@ -4,6 +4,7 @@ import com.kang.sketchq.type.User;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -48,8 +49,9 @@ public class UserService {
      * @return
      */
     public Mono<List<Object>> findUsers(String roomId) {
+        ScanOptions options = ScanOptions.scanOptions().match(roomId + ":*").count(100).build();
         return reactiveRedisOperations
-                .keys(roomId + ":*")
+                .scan(options)
                 .flatMap(key -> reactiveRedisOperations.opsForValue().get(key))
                 .collectList();
     }

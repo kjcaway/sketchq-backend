@@ -38,17 +38,16 @@ public class UserRouter {
                         })
                 .POST("/join",
                         serverRequest -> {
-                            String id = CommonUtil.getRandomString(8);
                             Mono<User> userMono = serverRequest.bodyToMono(User.class);
                             return userMono.flatMap(user -> {
-                                user.setId(id);
-
                                 if(user.getRoomId() == null) return ServerResponse.badRequest().body(BodyInserters.empty());
+
+                                user.setId(CommonUtil.getRandomString(8));
 
                                 return userService.createUser(user)
                                         .flatMap(b -> {
                                             if (b) {
-                                                return ServerResponse.ok().body(BodyInserters.fromValue(id));
+                                                return ServerResponse.ok().body(BodyInserters.fromValue(user.getId()));
                                             } else {
                                                 return ServerResponse.badRequest().body(BodyInserters.empty());
                                             }

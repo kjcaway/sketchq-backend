@@ -4,6 +4,7 @@ import com.kang.sketchq.type.Room;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -37,8 +38,9 @@ public class RoomService {
      * @return Length of List
      */
     public Mono<List<Object>> getRoomList() {
+        ScanOptions options = ScanOptions.scanOptions().match("room:*").count(100).build();
         return reactiveRedisOperations
-                .keys( "room:*")
+                .scan(options)
                 .flatMap(key -> reactiveRedisOperations.opsForValue().get(key))
                 .collectList();
     }

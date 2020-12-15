@@ -44,17 +44,15 @@ public class RoomRouter {
                             Mono<Room> roomMono = serverRequest.bodyToMono(Room.class);
 
                             return roomMono.flatMap(room -> {
-                                String roomId = CommonUtil.getRandomString(8);
-
                                 if(room.getRoomName() == null) return ServerResponse.badRequest().body(BodyInserters.empty());
 
-                                room.setId(roomId);
+                                room.setId(CommonUtil.getRandomString(8));
                                 room.setCreated(CommonUtil.getNowDateTime("yyyy-MM-dd HH:mm:ss"));
 
                                 return roomService.createRoom(room)
                                         .flatMap(s -> {
-                                            webSocChannelService.addChannel(roomId);
-                                            return ServerResponse.ok().body(BodyInserters.fromValue(roomId));
+                                            webSocChannelService.addChannel(room.getId());
+                                            return ServerResponse.ok().body(BodyInserters.fromValue(room.getId()));
                                         });
                             });
                     })
