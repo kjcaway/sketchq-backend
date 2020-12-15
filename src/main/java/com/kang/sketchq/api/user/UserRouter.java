@@ -1,7 +1,6 @@
 package com.kang.sketchq.api.user;
 
 import com.kang.sketchq.type.User;
-import com.kang.sketchq.api.user.service.UserService;
 import com.kang.sketchq.util.CommonUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,10 +15,10 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 
 @Configuration
 public class UserRouter {
-    private final UserService userService;
+    private final UserRedisClient userRedisClient;
 
-    public UserRouter(UserService userService) {
-        this.userService = userService;
+    public UserRouter(UserRedisClient userRedisClient) {
+        this.userRedisClient = userRedisClient;
     }
 
     @Bean
@@ -32,7 +31,7 @@ public class UserRouter {
                             if (!roomId.isPresent()) {
                                 return ServerResponse.badRequest().body(BodyInserters.empty());
                             } else {
-                                return userService.findUsers(roomId.get())
+                                return userRedisClient.findUsers(roomId.get())
                                         .flatMap(s -> ServerResponse.ok().body(BodyInserters.fromValue(s)));
                             }
                         })
@@ -44,7 +43,7 @@ public class UserRouter {
 
                                 user.setId(CommonUtil.getRandomString(8));
 
-                                return userService.createUser(user)
+                                return userRedisClient.createUser(user)
                                         .flatMap(b -> {
                                             if (b) {
                                                 return ServerResponse.ok().body(BodyInserters.fromValue(user.getId()));

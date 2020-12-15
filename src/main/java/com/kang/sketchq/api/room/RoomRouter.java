@@ -1,14 +1,9 @@
 package com.kang.sketchq.api.room;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kang.sketchq.ws.handler.WebSocChannelService;
-import com.kang.sketchq.api.room.service.RoomService;
-import com.kang.sketchq.type.Message;
-import com.kang.sketchq.type.MessageType;
+import com.kang.sketchq.api.user.UserHandler;
 import com.kang.sketchq.type.Room;
 import com.kang.sketchq.type.User;
-import com.kang.sketchq.api.user.service.UserService;
 import com.kang.sketchq.util.CommonUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,23 +12,22 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
 public class RoomRouter {
-    private final RoomService roomService;
-    private final UserService userService;
-    private final WebSocChannelService webSocChannelService;
+    private final RoomRedisClient roomRedisClient;
+    private final UserHandler userHandler;
+    private final RoomHandler roomHandler;
     final private ObjectMapper jsonMapper = new ObjectMapper();
 
-    public RoomRouter(RoomService roomService, UserService userService, WebSocChannelService webSocChannelService) {
-        this.roomService = roomService;
-        this.userService = userService;
-        this.webSocChannelService = webSocChannelService;
+    public RoomRouter(
+            RoomRedisClient roomRedisClient,
+            UserHandler userHandler,
+            RoomHandler roomHandler) {
+        this.roomRedisClient = roomRedisClient;
+        this.userHandler = userHandler;
+        this.roomHandler = roomHandler;
     }
 
     @Bean
@@ -49,15 +43,11 @@ public class RoomRouter {
                                 room.setId(CommonUtil.getRandomString(8));
                                 room.setCreated(CommonUtil.getNowDateTime("yyyy-MM-dd HH:mm:ss"));
 
-                                return roomService.createRoom(room)
-                                        .flatMap(s -> {
-                                            webSocChannelService.addChannel(room.getId());
-                                            return ServerResponse.ok().body(BodyInserters.fromValue(room.getId()));
-                                        });
+                                return roomHandler.makeRoom(room);
                             });
                     })
                 .GET("/rooms",
-                        serverRequest -> roomService.getRoomList()
+                        serverRequest -> roomRedisClient.scanRooms()
                                 .flatMap(list -> {
                                     if(list.size() > 0){
                                         list.stream()
@@ -85,7 +75,7 @@ public class RoomRouter {
                                 room.setId(user.getRoomId());
                                 room.setWord(CommonUtil.getRandomWord());
 
-                                return roomService.setWordToRoom(room)
+                                return roomRedisClient.setWord(room)
                                         .flatMap(b -> {
                                             if (b) {
                                                 return ServerResponse.ok().body(BodyInserters.fromValue(room.getWord()));
@@ -102,30 +92,7 @@ public class RoomRouter {
                             return userMono.flatMap(user -> {
                                 if(user.getRoomId() == null) return ServerResponse.badRequest().body(BodyInserters.empty());
 
-                                return userService.findUsers(user.getRoomId())
-                                        .flatMap(userList -> {
-                                            if(userList.size() > 1){
-                                                // UserList ignored myself
-                                                List<Object> targetList = userList.stream().filter(t -> {
-                                                    User u =  jsonMapper.convertValue(t, User.class);
-                                                    return !u.getId().equals(user.getId());
-                                                }).collect(Collectors.toList());
-
-                                                // Pick user randomly
-                                                Random r = new Random();
-                                                User u = jsonMapper.convertValue(targetList.get(r.nextInt(targetList.size())), User.class);
-
-                                                // ROLE message push
-                                                Message message = new Message(MessageType.ROLECHANGE, u, null, null, null);
-                                                try {
-                                                    String messageStr = jsonMapper.writeValueAsString(message);
-                                                    webSocChannelService.getMessaagePublisher(user.getRoomId()).push(messageStr);
-                                                } catch (JsonProcessingException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                            return ServerResponse.ok().body(BodyInserters.empty());
-                                        });
+                                return userHandler.roleChange(user);
                             });
                         })
                 .build();

@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
-public class WebSocChannelService {
+public class WebSocChannel{
     private Map<String, MessagePublisher> messagePublisherMap;
     private Map<String, Flux<String>> channelMap;
 

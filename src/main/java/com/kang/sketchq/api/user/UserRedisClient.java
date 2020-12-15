@@ -1,4 +1,4 @@
-package com.kang.sketchq.api.user.service;
+package com.kang.sketchq.api.user;
 
 import com.kang.sketchq.type.User;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
@@ -11,14 +11,14 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Service
-public class UserService {
+public class UserRedisClient{
     private final ReactiveRedisConnectionFactory factory;
     private final ReactiveRedisOperations<String, Object> reactiveRedisOperations;
     private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
 
-    public UserService(ReactiveRedisConnectionFactory factory,
-                       ReactiveRedisOperations<String, Object> reactiveRedisOperations,
-                       ReactiveRedisTemplate<String, Object> reactiveRedisTemplate) {
+    public UserRedisClient(ReactiveRedisConnectionFactory factory,
+                           ReactiveRedisOperations<String, Object> reactiveRedisOperations,
+                           ReactiveRedisTemplate<String, Object> reactiveRedisTemplate) {
         this.factory = factory;
         this.reactiveRedisOperations = reactiveRedisOperations;
         this.reactiveRedisTemplate = reactiveRedisTemplate;

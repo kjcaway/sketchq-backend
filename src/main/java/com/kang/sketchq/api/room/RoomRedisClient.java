@@ -1,4 +1,4 @@
-package com.kang.sketchq.api.room.service;
+package com.kang.sketchq.api.room;
 
 import com.kang.sketchq.type.Room;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
@@ -11,14 +11,14 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Service
-public class RoomService {
+public class RoomRedisClient{
     private final ReactiveRedisConnectionFactory factory;
     private final ReactiveRedisOperations<String, Object> reactiveRedisOperations;
     private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
 
-    public RoomService(ReactiveRedisConnectionFactory factory,
-                       ReactiveRedisOperations<String, Object> reactiveRedisOperations,
-                       ReactiveRedisTemplate<String, Object> reactiveRedisTemplate) {
+    public RoomRedisClient(ReactiveRedisConnectionFactory factory,
+                           ReactiveRedisOperations<String, Object> reactiveRedisOperations,
+                           ReactiveRedisTemplate<String, Object> reactiveRedisTemplate) {
         this.factory = factory;
         this.reactiveRedisOperations = reactiveRedisOperations;
         this.reactiveRedisTemplate = reactiveRedisTemplate;
@@ -29,7 +29,7 @@ public class RoomService {
      * @param room
      * @return Length of List
      */
-    public Mono<Boolean> createRoom(Room room) {
+    public Mono<Boolean> setRoom(Room room) {
         return reactiveRedisTemplate.opsForValue().set("room:" + room.getId(), room); // key: "room:{roomId}"
     }
 
@@ -37,7 +37,7 @@ public class RoomService {
      * Room List
      * @return Length of List
      */
-    public Mono<List<Object>> getRoomList() {
+    public Mono<List<Object>> scanRooms() {
         ScanOptions options = ScanOptions.scanOptions().match("room:*").count(100).build();
         return reactiveRedisOperations
                 .scan(options)
@@ -50,7 +50,7 @@ public class RoomService {
      * @param roomId
      * @return Length of List
      */
-    public Mono<Long> removeRoom(String roomId) {
+    public Mono<Long> deleteRoom(String roomId) {
         return reactiveRedisTemplate.delete("room:" + roomId); // key : "room:{roomId}"
     }
 
@@ -59,7 +59,7 @@ public class RoomService {
      * @param room
      * @return boolean
      */
-    public Mono<Boolean> setWordToRoom(Room room) {
+    public Mono<Boolean> setWord(Room room) {
         return reactiveRedisTemplate.opsForValue().set("word:" + room.getId(), room.getWord()); // key: "word:{roomId}"
     }
 
@@ -68,7 +68,7 @@ public class RoomService {
      * @param roomId
      * @return boolean
      */
-    public Mono<Object> getWordToRoom(String roomId) {
+    public Mono<Object> getWord(String roomId) {
         return reactiveRedisTemplate.opsForValue().get("word:" + roomId); // key: "word:{roomId}"
     }
 
@@ -77,7 +77,7 @@ public class RoomService {
      * @param roomId
      * @return boolean
      */
-    public Mono<Long> removeWordToRoom(String roomId) {
+    public Mono<Long> deleteWord(String roomId) {
         return reactiveRedisTemplate.delete("word:" + roomId); // key: "word:{roomId}"
     }
 }

@@ -1,8 +1,8 @@
 package com.kang.sketchq.ws;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kang.sketchq.ws.handler.WebSocChannelService;
-import com.kang.sketchq.api.user.service.UserService;
+import com.kang.sketchq.ws.handler.WebSocChannel;
+import com.kang.sketchq.api.user.UserRedisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,9 @@ public class CustomHandshakeWebsocketService extends HandshakeWebSocketService {
     final private ObjectMapper jsonMapper = new ObjectMapper();
 
     @Autowired
-    public UserService userService;
+    public UserRedisClient userRedisClient;
     @Autowired
-    public WebSocChannelService webSocChannelService;
+    public WebSocChannel webSocChannel;
 
     public CustomHandshakeWebsocketService(RequestUpgradeStrategy upgradeStrategy) {
         super(upgradeStrategy);
