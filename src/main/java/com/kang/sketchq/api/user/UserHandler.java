@@ -35,7 +35,7 @@ public class UserHandler{
     public Mono<ServerResponse> roleChange(User user){
         return userRedisClient.scanUsers(user.getRoomId())
                 .flatMap(userList -> {
-                    if(userList.size() > 1){
+                    if(userList.size() >= 1){
                         // UserList ignored myself
                         List<Object> targetList = userList.stream().filter(t -> {
                             User u =  jsonMapper.convertValue(t, User.class);
@@ -44,16 +44,31 @@ public class UserHandler{
 
                         // Pick user randomly
                         Random r = new Random();
-                        User u = jsonMapper.convertValue(targetList.get(r.nextInt(targetList.size())), User.class);
+                        User newUser = jsonMapper.convertValue(targetList.get(r.nextInt(targetList.size())), User.class);
 
-                        // ROLE message push
-                        Message message = new Message(MessageType.ROLECHANGE, u, null, null, null);
-                        try {
-                            String messageStr = jsonMapper.writeValueAsString(message);
-                            webSocChannel.getMessaagePublisher(user.getRoomId()).push(messageStr);
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
+                        // Update user
+                        newUser.setRole(1);
+                        userRedisClient.setUser(newUser)
+                                .then(userRedisClient.getUser(user.getRoomId(), user.getId())
+                                        .flatMap(u -> {
+                                            if(u != null){
+                                                User u2 = jsonMapper.convertValue(u, User.class);
+                                                u2.setRole(2);
+                                                return userRedisClient.setUser(u2);
+                                            }
+                                            return null;
+                                        }))
+                                .then(Mono.just(new Message(MessageType.ROLECHANGE, newUser)))
+                                .flatMap(message -> {
+                                    // Push message
+                                    try {
+                                        String messageStr = jsonMapper.writeValueAsString(message);
+                                        webSocChannel.getMessaagePublisher(user.getRoomId()).push(messageStr);
+                                    } catch (JsonProcessingException e) {
+                                        e.printStackTrace();
+                                    }
+                                    return null;
+                                }).subscribe();
                     }
                     return ServerResponse.ok().body(BodyInserters.empty());
                 });

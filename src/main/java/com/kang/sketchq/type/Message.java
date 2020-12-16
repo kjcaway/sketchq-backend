@@ -14,6 +14,11 @@ public class Message<T> {
         super();
     }
 
+    public Message(MessageType messageType, User sender) {
+        this.messageType = messageType;
+        this.sender = sender;
+    }
+
     public Message(MessageType messageType, User sender, String chat, String roomId, Drawing drawing) {
         this.messageType = messageType;
         this.sender = sender;

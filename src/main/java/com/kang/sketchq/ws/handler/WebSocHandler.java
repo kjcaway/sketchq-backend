@@ -3,6 +3,7 @@ package com.kang.sketchq.ws.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kang.sketchq.api.room.RoomRedisClient;
+import com.kang.sketchq.api.user.UserHandler;
 import com.kang.sketchq.type.Message;
 import com.kang.sketchq.type.MessageType;
 import com.kang.sketchq.type.User;
@@ -28,6 +29,8 @@ public class WebSocHandler implements WebSocketHandler {
     public UserRedisClient userRedisClient;
     @Autowired
     public RoomRedisClient roomRedisClient;
+    @Autowired
+    public UserHandler userHandler;
 
     @Override
     public Mono<Void> handle(WebSocketSession webSocketSession) {
@@ -43,34 +46,39 @@ public class WebSocHandler implements WebSocketHandler {
                 .doOnComplete(() -> {
                     log.info("doOnComplete. Session disconnect. User: " + userId);
 
-                    userRedisClient.deleteUser(roomId, userId)
-                            .flatMap(b -> {
-                                /* Leave Message push */
-                                User user = new User(userId, roomId);
-                                Message message = new Message(MessageType.LEAVE, user, null, null, null);
+                    userRedisClient.getUser(roomId, userId)
+                            .flatMap(user -> {
+                                User u =  jsonMapper.convertValue(user, User.class);
+                                if(u.getRole() == 1){
+                                    userHandler.roleChange(u).subscribe();
+                                }
+                                return Mono.empty();
+                            })
+                            .then(userRedisClient.deleteUser(roomId, userId))
+                            .then(Mono.just(new Message(MessageType.LEAVE, new User(userId, roomId))))
+                            .flatMap(message -> {
+                                // Push message
                                 try {
                                     String messageStr = jsonMapper.writeValueAsString(message);
                                     webSocChannel.getMessaagePublisher(roomId).push(messageStr);
                                 } catch (JsonProcessingException e) {
                                     e.printStackTrace();
                                 }
-                                return null;
+                                return Mono.empty();
                             })
+                            .then(userRedisClient.scanUsers(roomId)
+                                .flatMap(userList -> {
+                                    if(userList.size() == 0){
+                                        /* Delete room and channel */
+                                        roomRedisClient.deleteRoom(roomId)
+                                                .then(roomRedisClient.deleteWord(roomId))
+                                                .subscribe();
+                                        webSocChannel.removeChannel(roomId);
+                                    }
+                                    return null;
+                                })
+                            )
                             .subscribe();
-
-                    userRedisClient.scanUsers(roomId)
-                            .flatMap(userList -> {
-                                if(userList.size() == 0){
-                                    /* Delete room and channel */
-                                    roomRedisClient.deleteRoom(roomId).subscribe();
-                                    roomRedisClient.deleteWord(roomId).subscribe();
-
-                                    webSocChannel.removeChannel(roomId);
-                                }
-                                return null;
-                            })
-                            .subscribe();
-
                 })
                 .subscribe();
 
